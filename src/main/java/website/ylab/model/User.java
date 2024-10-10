@@ -51,7 +51,7 @@ public class User {
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", wonts=" + worts +
+                ", wonts=" + wonts +
                 '}';
     }
 }
