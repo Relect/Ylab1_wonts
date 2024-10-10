@@ -67,7 +67,7 @@ public class DataUsers {
         while (true) {
             out.writeLn("""                    
                     Для редактирования пользователя введите: 
-                    1 - имя пользователядля удаления введите 2,
+                    1 - имя пользователя,
                     2 - email пользователя, 
                     3 - пароль пользователя.
                     для выхода в предыдущее меню введите exit.""");
@@ -82,7 +82,7 @@ public class DataUsers {
                     users.put(email, user);
                     break;
                 case "2":
-                    User user = users.get(email);
+                    User user1 = users.get(email);
                     out.writeLn("Введите новый email пользователя");
                     String newEmail = in.readLn();
                     while (users.containsKey(newEmail)) {
@@ -90,11 +90,11 @@ public class DataUsers {
                         email = in.readLn();
                     }
                     users.remove(email);
-                    users.put(newEmail, user);
+                    users.put(newEmail, user1);
                     break;
                 case "3":
-                    User user1 = users.get(email);
-                    String password = user1.getPassword();
+                    User user2 = users.get(email);
+                    String password = user2.getPassword();
                     out.writeLn("Введите новый пароль пользователя");
                     String newPassword = in.readLn();
                     while (passwords.contains(newPassword)) {
@@ -103,8 +103,8 @@ public class DataUsers {
                     }
                     passwords.remove(password);
                     passwords.add(newPassword);
-                    user1.setPassword(newPassword);
-                    users.put(email, user1);
+                    user2.setPassword(newPassword);
+                    users.put(email, user2);
                 case "exit":
                     return;
                 default:

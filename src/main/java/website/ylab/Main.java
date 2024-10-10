@@ -40,7 +40,7 @@ public class Main {
 
                             switch (command2) {
                                 case "1":
-                                    dataUsers.editUser(user.getEmail());
+                                    dataUsers.editUser(user.getEmail(), in, out);
                                     break;
                                 case "2":
                                     dataUsers.deleteUser(user.getEmail());
