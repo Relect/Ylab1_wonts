@@ -22,7 +22,7 @@ public class Main {
 
             switch (command) {
                 case "exit":
-                    out.writeLn("Thank you for choosing Ylab, goodbye");
+                    out.writeLn("Thank you for choosing Ylab");
                     System.exit(0);
                 case "1":
                     data.addUser(in, out);
