@@ -31,7 +31,28 @@ public class Main {
                     User user = data.login(in, out);
                     if (user != null) {
                         while (true) {
-                            in.readLn();
+                            boolean exit = false;
+                            out.writeLn("""                    
+                    Для редактирования пользователя введите 1,
+                    для удаления введите 2,
+                    для выхода в предыдущее меню введите exit.""");
+                            String command2 = in.readLn();
+
+                            switch (command2) {
+                                case "1":
+                                    data.editUser(user.getEmail());
+                                    break;
+                                case "2":
+                                    data.deleteUser(user.getEmail());
+                                    exit = true;
+                                    break;
+                                case "exit":
+                                    exit = true;
+                                    break;
+                                default:
+                                    out.writeLn("команда неверна, повторите заново");
+                            }
+                            if (exit) break;
                         }
                     }
                     break;

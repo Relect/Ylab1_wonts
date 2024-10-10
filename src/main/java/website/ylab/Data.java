@@ -58,4 +58,12 @@ public class Data {
         out.writeLn(user.toString());
         return user;
     }
+
+    public void deleteUser(String email) {
+
+    }
+
+    public void editUser(String email) {
+
+    }
 }
