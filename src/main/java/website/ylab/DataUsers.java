@@ -4,15 +4,12 @@ import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
 
-import java.io.PrintStream;
 import java.util.*;
 
-public class Data {
+public class DataUsers {
 
     final HashMap<String, User> users = new HashMap<>();
     final HashSet<String> passwords = new HashSet<>();
-
-    private User userLogin = null;
 
     public void addUser(Read in, Write out) {
 

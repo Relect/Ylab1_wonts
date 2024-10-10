@@ -10,7 +10,7 @@ public class Main {
         System.out.println("Hello world!");
         Read in = new Read();
         Write out = new Write();
-        Data data = new Data();
+        DataUsers dataUsers = new DataUsers();
         String command;
 
         while (true) {
@@ -25,10 +25,10 @@ public class Main {
                     out.writeLn("Thank you for choosing Ylab");
                     System.exit(0);
                 case "1":
-                    data.addUser(in, out);
+                    dataUsers.addUser(in, out);
                     break;
                 case "2":
-                    User user = data.login(in, out);
+                    User user = dataUsers.login(in, out);
                     if (user != null) {
                         while (true) {
                             boolean exit = false;
@@ -40,10 +40,10 @@ public class Main {
 
                             switch (command2) {
                                 case "1":
-                                    data.editUser(user.getEmail());
+                                    dataUsers.editUser(user.getEmail());
                                     break;
                                 case "2":
-                                    data.deleteUser(user.getEmail());
+                                    dataUsers.deleteUser(user.getEmail());
                                     exit = true;
                                     break;
                                 case "exit":

@@ -1,5 +1,6 @@
 package website.ylab.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class User {
@@ -8,7 +9,7 @@ public class User {
     private String email;
     private String password;
 
-    private List<String> worts;
+    private List<Wont> wonts = new ArrayList<>();
 
     public User(String name, String email, String password) {
         this.name = name;
@@ -28,8 +29,8 @@ public class User {
         this.password = password;
     }
 
-    public void setWorts(List<String> worts) {
-        this.worts = worts;
+    public void setWont(Wont wont) {
+        wonts.add(wont);
     }
 
     public String getEmail() {
@@ -40,8 +41,8 @@ public class User {
         return password;
     }
 
-    public List<String> getWorts() {
-        return worts;
+    public List<Wont> getWonts() {
+        return wonts;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class User {
                 "name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", worts=" + worts +
+                ", wonts=" + worts +
                 '}';
     }
 }
