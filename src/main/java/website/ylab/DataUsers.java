@@ -70,7 +70,7 @@ public class DataUsers {
                     1 - имя пользователя,
                     2 - email пользователя, 
                     3 - пароль пользователя.
-                    для выхода в предыдущее меню введите exit.""");
+                    exit для выхода в предыдущее меню введите.""");
             String command = in.readLn();
 
             switch (command) {
