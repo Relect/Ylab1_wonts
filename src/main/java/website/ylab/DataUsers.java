@@ -8,8 +8,12 @@ import java.util.*;
 
 public class DataUsers {
 
-    final HashMap<String, User> users = new HashMap<>();
-    final HashSet<String> passwords = new HashSet<>();
+    private final HashMap<String, User> users = new HashMap<>();
+    private final HashSet<String> passwords = new HashSet<>();
+
+    public HashMap<String, User> getUsers() {
+        return users;
+    }
 
     public void addUser(Read in, Write out) {
 

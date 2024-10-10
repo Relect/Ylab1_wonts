@@ -30,9 +30,10 @@ public class Main {
                 case "2":
                     User user = dataUsers.login(in, out);
                     if (user != null) {
+
                         while (true) {
                             boolean exit = false;
-                            out.writeLn("""                    
+                            out.writeLn("""
                     1 Для редактирования пользователя введите,
                     2 для удаления пользователя введите,
                     exit для выхода в предыдущее меню введите.""");
