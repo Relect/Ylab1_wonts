@@ -16,6 +16,22 @@ public class User {
         this.password = password;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setWorts(List<String> worts) {
+        this.worts = worts;
+    }
+
     public String getEmail() {
         return email;
     }

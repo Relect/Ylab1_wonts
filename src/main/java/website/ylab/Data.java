@@ -4,6 +4,7 @@ import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
 
+import java.io.PrintStream;
 import java.util.*;
 
 public class Data {
@@ -60,10 +61,58 @@ public class Data {
     }
 
     public void deleteUser(String email) {
-
+        String pass = users.get(email).getPassword();
+        passwords.remove(pass);
+        users.remove(email);
     }
 
-    public void editUser(String email) {
+    public void editUser(String email, Read in, Write out) {
+        while (true) {
+            out.writeLn("""                    
+                    Для редактирования пользователя введите: 
+                    1 - имя пользователядля удаления введите 2,
+                    2 - email пользователя, 
+                    3 - пароль пользователя.
+                    для выхода в предыдущее меню введите exit.""");
+            String command = in.readLn();
 
+            switch (command) {
+                case "1":
+                    out.writeLn("Введите новое имя пользователя");
+                    String name = in.readLn();
+                    User user = users.get(email);
+                    user.setName(name);
+                    users.put(email, user);
+                    break;
+                case "2":
+                    User user = users.get(email);
+                    out.writeLn("Введите новый email пользователя");
+                    String newEmail = in.readLn();
+                    while (users.containsKey(newEmail)) {
+                        out.writeLn("Этот email занят, введите другой");
+                        email = in.readLn();
+                    }
+                    users.remove(email);
+                    users.put(newEmail, user);
+                    break;
+                case "3":
+                    User user1 = users.get(email);
+                    String password = user1.getPassword();
+                    out.writeLn("Введите новый пароль пользователя");
+                    String newPassword = in.readLn();
+                    while (passwords.contains(newPassword)) {
+                        out.writeLn("Этот пароль занят, введите другой");
+                        email = in.readLn();
+                    }
+                    passwords.remove(password);
+                    passwords.add(newPassword);
+                    user1.setPassword(newPassword);
+                    users.put(email, user1);
+                case "exit":
+                    return;
+                default:
+                    out.writeLn("команда неверна, повторите заново");
+            }
+        }
     }
 }
