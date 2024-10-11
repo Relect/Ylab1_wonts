@@ -54,7 +54,7 @@ public class Main {
                                     exit = true;
                                     break;
                                 case "3":
-                                    dataWonts.controlWonts(in, out);
+                                    dataWonts.controlWonts(in, out, user);
                                     break;
                                 case "exit":
                                     exit = true;

@@ -11,6 +11,7 @@ import java.util.Date;
 
 @Setter
 @Getter
+@AllArgsConstructor
 public class Wont {
 
     private String name;
@@ -20,11 +21,4 @@ public class Wont {
     private Date createAt;
     private Status status;
 
-    public Wont(String name, String info, Freq freq, Date createAt, Status status) {
-        this.name = name;
-        this.info = info;
-        this.freq = freq;
-        this.createAt = createAt;
-        this.status = status;
-    }
 }

@@ -3,10 +3,12 @@ package website.ylab.service;
 import website.ylab.enums.Freq;
 import website.ylab.enums.Status;
 import website.ylab.in.Read;
+import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
 import java.util.Date;
+import java.util.List;
 
 public class DataWonts {
 
@@ -15,7 +17,7 @@ public class DataWonts {
         this.dataUsers = dataUsers;
     }
 
-    public void controlWonts(Read in, Write out) {
+    public void controlWonts(Read in, Write out, User user) {
         while (true) {
             out.writeLn("""
                     1 для создания привычки,
@@ -27,16 +29,16 @@ public class DataWonts {
 
             switch (command) {
                 case "1":
-                    addWont(in, out);
+                    addWont(in, out, user);
                     break;
                 case "2":
-                    editWont(in, out);
+                    editWont(in, out, user);
                     break;
                 case "3":
-                    deleteWont(in, out);
+                    deleteWont(in, out, user);
                     break;
                 case "4":
-                    watchWonts(out);
+                    watchWonts(out, user);
                     break;
                 case "exit":
                     return;
@@ -46,7 +48,7 @@ public class DataWonts {
         }
     }
 
-    public void addWont(Read in, Write out) {
+    public void addWont(Read in, Write out, User user) {
         out.writeLn("Введите название привычки");
         String wontName = in.readLn();
         out.writeLn("Введите описание привычки");
@@ -70,18 +72,25 @@ public class DataWonts {
         }
         Wont wont = new Wont(wontName, wontInfo,
                 freq, new Date(), Status.ACTIVE);
+        user.setWont(wont);
+    }
+
+    public void editWont(Read in, Write out, User user) {
 
     }
 
-    public void editWont(Read in, Write out) {
+    public void deleteWont(Read in, Write out, User user) {
+        out.writeLn("""
+                    Ведите название привыки,
+                    exit для выхода в предыдущее меню.""");
+        String wontName = in.readLn();
+        List<Wont> list = user.getWonts().stream()
+                .filter(wont -> wont.getName().equals(wontName))
+                .toList();
 
     }
 
-    public void deleteWont(Read in, Write out) {
-
-    }
-
-    public void watchWonts(Write out) {
+    public void watchWonts(Write out, User user) {
 
     }
 }
