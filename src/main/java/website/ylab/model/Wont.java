@@ -21,4 +21,14 @@ public class Wont {
     private Date createAt;
     private Status status;
 
+    @Override
+    public String toString() {
+        return "Wont{" +
+                "name='" + name + '\'' +
+                ", info='" + info + '\'' +
+                ", freq=" + freq +
+                ", createAt=" + createAt +
+                ", status=" + status +
+                '}';
+    }
 }
