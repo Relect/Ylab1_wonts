@@ -101,7 +101,7 @@ public class DataWonts {
 
     public void watchWonts(Write out, User user) {
         for (Wont wont: user.getWonts()) {
-            out.writeLn(wont);
+            out.writeLn(wont.toString());
         }
     }
 }
