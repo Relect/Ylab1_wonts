@@ -1,8 +1,10 @@
 package website.ylab;
 
 
+import website.ylab.enums.Freq;
 import website.ylab.in.Read;
 import website.ylab.model.User;
+import website.ylab.model.Wont;
 import website.ylab.out.Write;
 import website.ylab.service.DataUsers;
 import website.ylab.service.DataWonts;
@@ -39,10 +41,7 @@ public class Main {
                             out.writeLn("""
                     1 Для редактирования пользователя введите,
                     2 для удаления пользователя введите,
-                    3 для создания привычки,
-                    4 для редактирования привычки,
-                    5 для удаления привычки,
-                    6 для просмотра привычек,                
+                    3 для управления привычками,           
                     exit для выхода в предыдущее меню введите.""");
                             String command2 = in.readLn();
 
@@ -55,7 +54,8 @@ public class Main {
                                     exit = true;
                                     break;
                                 case "3":
-
+                                    dataWonts.controlWonts(in, out);
+                                    break;
                                 case "exit":
                                     exit = true;
                                     break;
