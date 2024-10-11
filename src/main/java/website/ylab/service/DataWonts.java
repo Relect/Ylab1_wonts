@@ -88,14 +88,15 @@ public class DataWonts {
         if (wontName.equals("exit")) return;
 
         List<Wont> list = user.getWonts();
-        ArrayList<Integer> index = new ArrayList<>();
+        int j = -1;
         for (int i = 0; i < list.size() ; i++) {
             if (list.get(i).getName().equals(wontName)) {
-                index.add(i);
+                j = i
+                break;
             }
         }
-        for (Integer i: index) {
-            list.remove(i);
+        if (j != -1) {
+            user.getWonts().remove(j);
         }
     }
 
