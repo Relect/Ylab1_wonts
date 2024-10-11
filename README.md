@@ -1,13 +1,5 @@
-#  Проект привычки
+#  Проект привычки Ylab.website
 
-   сделано crud привычек
+ [Дз1](https://github.com/Relect/Ylab1_wonts/pull/1/files)
+
    
-   Для запуска приложения введите в терминале последовательно
-
-   mvn clean
-
-   mvn compile
-
-   mvn exec:java -Dexec.mainClass="website.ylab.Main"
-   
-stack: java 11, junit 5, mockito, lombok
