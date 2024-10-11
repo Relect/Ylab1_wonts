@@ -7,6 +7,7 @@ import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -84,13 +85,21 @@ public class DataWonts {
                     Ведите название привыки,
                     exit для выхода в предыдущее меню.""");
         String wontName = in.readLn();
-        List<Wont> list = user.getWonts().stream()
-                .filter(wont -> wont.getName().equals(wontName))
-                .toList();
+        if (wontName.equals("exit")) return;
 
+        List<Wont> list = user.getWonts();
+        ArrayList<Integer> index = new ArrayList<>();
+        for (int i = 0; i < list.size() ; i++) {
+            if (list.get(i).getName().equals(wontName)) {
+                index.add(i);
+            }
+        }
+        for (Integer i: index) {
+            list.remove(i);
+        }
     }
 
     public void watchWonts(Write out, User user) {
-
+        out.writeLn(user.getWonts().toString());
     }
 }
