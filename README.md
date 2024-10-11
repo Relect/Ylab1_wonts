@@ -1,5 +1,8 @@
-#  Project wonts 
-   For start project run in terminal
+#  Проект привычки
+
+   сделано crud привычек
+   
+   Для запуска приложения введите в терминале последовательно
 
    mvn clean
 
