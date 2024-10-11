@@ -1,4 +1,10 @@
+#  Project wonts 
+   For start project run in terminal
+
+   mvn clean
+
+   mvn compile
+
+   mvn exec:java -Dexec.mainClass="website.ylab.Main"
    
-   # Ylab
-      
-   [Дз1](https://github.com/YlabCourse/homework_example/pull/1/files)
+stack: java 11, junit 5, mockito, lombok
