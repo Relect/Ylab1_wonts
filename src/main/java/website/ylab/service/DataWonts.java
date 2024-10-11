@@ -77,7 +77,69 @@ public class DataWonts {
     }
 
     public void editWont(Read in, Write out, User user) {
+        while (true) {
+            out.writeLn("""
+                    Ведите название привыки,
+                    exit для выхода в предыдущее меню.""");
+            String wontName = in.readLn();
+            if (wontName.equals("exit")) return;
 
+            List<Wont> list = user.getWonts();
+            int j = -1;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getName().equals(wontName)) {
+                    j = i;
+                    break;
+                }
+            }
+            if (j != -1) {
+                Wont wont = user.getWonts().get(j);
+                while (true) {
+                    out.writeLn("""
+                            1 новое название привычки,
+                            2 новое описание привычки,
+                            3 новая частота привычки
+                            exit для выхода в предыдущее меню""");
+                    String command = in.readLn();
+                    switch (command) {
+                        case "1":
+                            out.writeLn("введите новое название");
+                            String newName = in.readLn();
+                            wont.setName(newName);
+                            return;
+                        case "2":
+                            out.writeLn("введите новое описание");
+                            String newInfo = in.readLn();
+                            wont.setInfo(newInfo);
+                            return;
+                        case "3" :
+                            while (true) {
+                                out.writeLn("""
+                                        Введите новую частоту:
+                                        1 ежедневно,
+                                        2 еженедельно""");
+                                String newFreq = in.readLn();
+                                if (newFreq.equals("1")) {
+                                    wont.setFreq(Freq.EVERYDAY);
+                                    return;
+                                } else if (newFreq.equals("2")) {
+                                    wont.setFreq(Freq.EVERYWEEK);
+                                    return;
+                                } else {
+                                    out.writeLn("неверный ввод");
+                                }
+                            }
+                        case "exit":
+                            return;
+                        default:
+                            out.writeLn("Команда неверна, повторите заново.");
+                    }
+                }
+                return;
+            } else {
+                out.writeLn("Неверный ввод");
+            }
+        }
     }
 
     public void deleteWont(Read in, Write out, User user) {
