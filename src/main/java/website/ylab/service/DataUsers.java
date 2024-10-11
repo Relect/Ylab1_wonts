@@ -1,4 +1,4 @@
-package website.ylab;
+package website.ylab.service;
 
 import website.ylab.in.Read;
 import website.ylab.model.User;
@@ -8,7 +8,7 @@ import java.util.*;
 
 public class DataUsers {
 
-    private final HashMap<String, User> users = new HashMap<>();
+    final HashMap<String, User> users = new HashMap<>();
     private final HashSet<String> passwords = new HashSet<>();
 
     public HashMap<String, User> getUsers() {

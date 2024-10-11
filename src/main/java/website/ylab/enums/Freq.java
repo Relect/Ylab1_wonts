@@ -1,4 +1,4 @@
-package website.ylab;
+package website.ylab.enums;
 
 public enum Freq {
     EVERYDAY,

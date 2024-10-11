@@ -1,15 +1,21 @@
 package website.ylab.model;
 
-import website.ylab.Freq;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import website.ylab.enums.Freq;
 
 import java.util.Date;
 
+@AllArgsConstructor
+@Setter
+@Getter
 public class Wont {
 
-    String name;
-    String info;
+    private String name;
+    private String info;
 
-    Freq freq;
-    Date createAt;
-    boolean status;
+    private Freq freq;
+    private Date createAt;
+    private boolean status;
 }

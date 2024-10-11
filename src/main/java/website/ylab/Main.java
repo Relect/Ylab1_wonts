@@ -4,6 +4,8 @@ package website.ylab;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
+import website.ylab.service.DataUsers;
+import website.ylab.service.DataWonts;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,6 +13,7 @@ public class Main {
         Read in = new Read();
         Write out = new Write();
         DataUsers dataUsers = new DataUsers();
+        DataWonts dataWonts = new DataWonts(dataUsers);
         String command;
 
         while (true) {
@@ -36,6 +39,10 @@ public class Main {
                             out.writeLn("""
                     1 Для редактирования пользователя введите,
                     2 для удаления пользователя введите,
+                    3 для создания привычки,
+                    4 для редактирования привычки,
+                    5 для удаления привычки,
+                    6 для просмотра привычек,                
                     exit для выхода в предыдущее меню введите.""");
                             String command2 = in.readLn();
 
@@ -47,6 +54,8 @@ public class Main {
                                     dataUsers.deleteUser(user.getEmail());
                                     exit = true;
                                     break;
+                                case "3":
+
                                 case "exit":
                                     exit = true;
                                     break;
