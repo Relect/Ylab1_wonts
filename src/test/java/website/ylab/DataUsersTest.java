@@ -23,12 +23,24 @@ public class DataUsersTest {
     public void addUserTest1() {
         DataUsers dataUsers = new DataUsers();
         Mockito.when(in.readLn())
-                .thenReturn("Gennady")
-                .thenReturn("relect@bk.ru")
-                .thenReturn("123");
+                .thenReturn("1")
+                .thenReturn("2")
+                .thenReturn("3");
         dataUsers.addUser(in, out);
         assertThat(dataUsers.getUsers()).hasSize(1);
     }
 
+    @Test
+    public void addUserTest2() {
+        DataUsers dataUsers = new DataUsers();
+        Mockito.when(in.readLn())
+                .thenReturn("Gennady")
+                .thenReturn("relect@bk.ru")
+                .thenReturn("123");
+        dataUsers.addUser(in, out);
+        User actual = dataUsers.getUsers().get("relect@bk.ru");
+        User expected = new User("Gennady", "relect@bk.ru", "123");
+        assertThat(actual).isEqualTo(expected);
+    }
 
 }
