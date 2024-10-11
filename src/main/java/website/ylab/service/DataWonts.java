@@ -135,7 +135,6 @@ public class DataWonts {
                             out.writeLn("Команда неверна, повторите заново.");
                     }
                 }
-                return;
             } else {
                 out.writeLn("Неверный ввод");
             }
