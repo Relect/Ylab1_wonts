@@ -117,15 +117,47 @@ public class StatWonts {
                         default:
                             out.writeLn("Команда неверна, повторите заново.");
                     }
-
-
-
                     if (exit) break;
                 }
             } else {
                 out.writeLn("неверное название привычки");
             }
         }
+    }
+
+    public void streak(Write out, User user) {
+
+    }
+
+    public void getRateOfTime(Read in, Write out, User user) {
+        while (true) {
+            boolean exit = false;
+            out.writeLn("""
+                    1 для генерации процента выполнения всех привычек за день,
+                    2 для генерации процента выполнения всех привычек за неделю,
+                    3 для генерации процента выполнения всех привычек за месяц,
+                    exit для выхода в предыдущее меню""");
+            String command = in.readLn();
+
+            switch (command) {
+                case "1":
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    break;
+                case "exit":
+                    exit = true;
+                    break;
+                default:
+                    out.writeLn("Команда неверна, повторите заново.");
+            }
+            if (exit) break;
+        }
+    }
+
+    public void getReport(Write out, User user) {
+
     }
 
     public Calendar getDay() {

@@ -28,6 +28,9 @@ public class DataWonts {
                     4 для просмотра привычек,
                     5 для выполнения привычки,
                     6 для генерации статистики привычек,
+                    7 для серии выполнения всех привычек,
+                    8 процент выполнения привычек за период времени,
+                    9 отчёт о прогрессе выполнения привычек.
                     exit для выхода в предыдущее меню.""");
             String command = in.readLn();
 
@@ -49,6 +52,14 @@ public class DataWonts {
                     break;
                 case "6":
                     statWonts.generateStat(in, out, user);
+                    break;
+                case "7":
+                    statWonts.streak(out, user);
+                    break;
+                case "8":
+                    statWonts.getRateOfTime(in, out, user);
+                case "9":
+                    statWonts.getReport(out, user);
                     break;
                 case "exit":
                     return;
