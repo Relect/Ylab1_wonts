@@ -33,13 +33,17 @@ public class Wont {
         this.status = status;
     }
 
+    public void addDoneWont(Calendar calendar) {
+        listDone.add(calendar);
+    }
+
     @Override
     public String toString() {
         return "Wont{" +
                 "name='" + name + '\'' +
                 ", info='" + info + '\'' +
                 ", freq=" + freq +
-                ", createAt=" + createAt +
+                ", createAt=" + createAt.getTime() +
                 ", status=" + status +
                 '}';
     }

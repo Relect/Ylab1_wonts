@@ -46,6 +46,10 @@ public class DataWonts {
                     break;
                 case "5":
                     statWonts.doWont(in, out, user);
+                    break;
+                case "6":
+                    statWonts.generateStat(in, out, user);
+                    break;
                 case "exit":
                     return;
                 default:
