@@ -7,7 +7,7 @@ import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -19,12 +19,15 @@ public class DataWonts {
     }
 
     public void controlWonts(Read in, Write out, User user) {
+        StatWonts statWonts = new StatWonts();
         while (true) {
             out.writeLn("""
                     1 для создания привычки,
                     2 для редактирования привычки,
                     3 для удаления привычки,
-                    4 для просмотра привычек
+                    4 для просмотра привычек,
+                    5 для выполнения привычки,
+                    6 для генерации статистики привычек,
                     exit для выхода в предыдущее меню.""");
             String command = in.readLn();
 
@@ -41,6 +44,8 @@ public class DataWonts {
                 case "4":
                     watchWonts(out, user);
                     break;
+                case "5":
+                    statWonts.doWont(in, out, user);
                 case "exit":
                     return;
                 default:
@@ -72,14 +77,14 @@ public class DataWonts {
             }
         }
         Wont wont = new Wont(wontName, wontInfo,
-                freq, new Date(), Status.ACTIVE);
+                freq, Calendar.getInstance(), Status.DEFFERRED);
         user.setWont(wont);
     }
 
     public void editWont(Read in, Write out, User user) {
         while (true) {
             out.writeLn("""
-                    Ведите название привыки,
+                    Ведите название привычки,
                     exit для выхода в предыдущее меню.""");
             String wontName = in.readLn();
             if (wontName.equals("exit")) return;
