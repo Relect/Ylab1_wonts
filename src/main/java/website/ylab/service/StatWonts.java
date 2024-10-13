@@ -7,7 +7,10 @@ import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class StatWonts {
@@ -51,6 +54,9 @@ public class StatWonts {
                     wont.addDoneWont(Calendar.getInstance());
                     wont.setStatus(Status.DONE);
                 }
+                out.writeLn("Привычка " + wontName + " выполнена");
+                out.writeLn("для продолжения нажмите enter");
+                in.readLn();
                 return;
             }
         }
@@ -92,6 +98,8 @@ public class StatWonts {
                                     .peek(calendar -> out.writeLn(calendar.getTime().toString()))
                                     .count();
                             out.writeLn("выполнена " + done + " раз");
+                            out.writeLn("для продолжения нажмите enter");
+                            in.readLn();
                             break;
                         case "2":
                             out.writeLn(wont.toString());
@@ -101,6 +109,8 @@ public class StatWonts {
                                     .peek(calendar -> out.writeLn(calendar.getTime().toString()))
                                     .count();
                             out.writeLn("выполнена " + done2 + " раз");
+                            out.writeLn("для продолжения нажмите enter");
+                            in.readLn();
                             break;
                         case "3":
                             out.writeLn(wont.toString());
@@ -110,6 +120,8 @@ public class StatWonts {
                                     .peek(calendar -> out.writeLn(calendar.getTime().toString()))
                                     .count();
                             out.writeLn("выполнена " + done3 + " раз");
+                            out.writeLn("для продолжения нажмите enter");
+                            in.readLn();
                             break;
                         case "exit":
                             exit = true;
@@ -130,29 +142,67 @@ public class StatWonts {
     }
 
     public void getRateOfTime(Read in, Write out, User user) {
+        int size = user.getWonts().size();
+        if (size == 0) {
+            out.writeLn("У пользователя нет привычек");
+            return;
+        }
         while (true) {
-            boolean exit = false;
             out.writeLn("""
-                    1 для генерации процента выполнения всех привычек за день,
-                    2 для генерации процента выполнения всех привычек за неделю,
-                    3 для генерации процента выполнения всех привычек за месяц,
+                    введите дату начала периода в формате dd.mm.yyyy
+                    например 20.10.2024
                     exit для выхода в предыдущее меню""");
-            String command = in.readLn();
+            String str1 = in.readLn();
+            if (str1.equals("exit")) return;
 
-            switch (command) {
-                case "1":
-                    break;
-                case "2":
-                    break;
-                case "3":
-                    break;
-                case "exit":
-                    exit = true;
-                    break;
-                default:
-                    out.writeLn("Команда неверна, повторите заново.");
+            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+            Date date1;
+            Date date2;
+            try {
+                date1 = format.parse(str1);
+            } catch (ParseException e) {
+                out.writeLn("неверный ввод");
+                continue;
             }
-            if (exit) break;
+            while (true) {
+                out.writeLn("""
+                    введите дату конца периода в формате dd.mm.yyyy
+                    например 30.10.2024
+                    exit для выхода в предыдущее меню""");
+                String str2 = in.readLn();
+                if (str2.equals("exit")) return;
+                try {
+                    date2 = format.parse(str2);
+                } catch (ParseException e) {
+                    out.writeLn("неверный ввод");
+                    continue;
+                }
+
+                Calendar cal1 = Calendar.getInstance();
+                cal1.setTime(date1);
+                Calendar cal2 = Calendar.getInstance();
+                cal2.setTime(date2);
+
+                for (int i = 0; i < size; i++) {
+                    Wont wont = user.getWonts().get(i);
+                    if (wont.getFreq() == Freq.EVERYDAY) {
+
+                        double days = (double) (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
+                        double dones = wont.getListDone().stream()
+                                .filter(done -> done.after(cal1))
+                                .filter(done -> done.before(cal2))
+                                .count();
+                        double result = dones / days * 100;
+                        String str = String.format("привычка %s выполненна на %.2f процентов",
+                                wont.getName(), result);
+                        out.writeLn(str);
+                    }
+
+                }
+                out.writeLn("для продолжения нажмите enter");
+                in.readLn();
+                return;
+            }
         }
     }
 
