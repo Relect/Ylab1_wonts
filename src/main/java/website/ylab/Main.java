@@ -9,7 +9,6 @@ import website.ylab.service.DataWonts;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
         Read in = new Read();
         Write out = new Write();
         DataUsers dataUsers = new DataUsers();
