@@ -12,4 +12,5 @@
    
 stack: java 17, junit 5, mockito, lombok
 
-![пример запуска](test1.png)
+![пример запуска](screen1.png)
+![пример запуска](screen2.png)
