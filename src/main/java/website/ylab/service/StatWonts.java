@@ -1,7 +1,7 @@
 package website.ylab.service;
 
-import website.ylab.enums.Freq;
-import website.ylab.enums.Status;
+import website.ylab.custom.Freq;
+import website.ylab.custom.Status;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.model.Wont;

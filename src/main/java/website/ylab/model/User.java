@@ -1,5 +1,8 @@
 package website.ylab.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,10 +10,16 @@ import java.util.Objects;
 public class User {
 
     private String  name;
+    @Getter
     private String email;
+    @Getter
     private String password;
-
+    @Getter
     private List<Wont> wonts = new ArrayList<>();
+    @Getter
+    private boolean admin = false;
+    @Getter
+    private boolean block = false;
 
     public User(String name, String email, String password) {
         this.name = name;
@@ -33,17 +42,11 @@ public class User {
     public void setWont(Wont wont) {
         wonts.add(wont);
     }
-
-    public String getEmail() {
-        return email;
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public List<Wont> getWonts() {
-        return wonts;
+    public void setBlock(boolean block) {
+        this.block = block;
     }
 
     @Override

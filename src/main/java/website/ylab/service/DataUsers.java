@@ -1,5 +1,7 @@
 package website.ylab.service;
 
+import lombok.Getter;
+import website.ylab.custom.Admin;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
@@ -8,11 +10,15 @@ import java.util.*;
 
 public class DataUsers {
 
+    @Getter
     final HashMap<String, User> users = new HashMap<>();
     private final HashSet<String> passwords = new HashSet<>();
 
-    public HashMap<String, User> getUsers() {
-        return users;
+    {
+        User admin = new User(Admin.name, Admin.email, Admin.password);
+        admin.setAdmin(true);
+        users.put(Admin.email, admin);
+        passwords.add(Admin.password);
     }
 
     public void addUser(Read in, Write out) {
