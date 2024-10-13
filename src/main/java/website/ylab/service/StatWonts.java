@@ -204,8 +204,6 @@ public class StatWonts {
 
         out.writeLn("для продолжения нажмите enter");
         in.readLn();
-        return;
-
     }
 
     public void getRateOfTime(Read in, Write out, User user) {
@@ -298,7 +296,7 @@ public class StatWonts {
     }
 
     public void getReport(Write out, User user) {
-
+        // todo
     }
 
     public Calendar getDay() {
