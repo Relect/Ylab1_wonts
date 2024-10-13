@@ -137,7 +137,74 @@ public class StatWonts {
         }
     }
 
-    public void streak(Write out, User user) {
+    public void streak(Read in, Write out, User user) {
+        int size = user.getWonts().size();
+        if (size == 0) {
+            out.writeLn("У пользователя нет привычек");
+            out.writeLn("для продолжения нажмите enter");
+            in.readLn();
+            return;
+        }
+        for (int i = 0; i < size; i++) {
+            Wont wont = user.getWonts().get(i);
+            if (wont.getStatus() == Status.DEFFERRED) {
+                String str = String.format("Привычка %s не выполнена ни разу", wont.getName());
+                out.writeLn(str);
+                continue;
+            }
+            List<Calendar> list = wont.getListDone();
+            if (wont.getFreq() == Freq.EVERYDAY) {
+                Calendar current, end;
+                end = dayPlusTwo(list.get(0));
+                int part = 1;
+                for (int j = 0; j < list.size(); j++) {
+                    if (j == 0) {
+                        out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
+                        part++;
+                        current = list.get(0);
+                        out.writeLn(current.getTime().toString());
+                    } else {
+                        current = list.get(j);
+                        if (current.after(end)) {
+                            out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
+                            part++;
+                            out.writeLn(current.getTime().toString());
+                            end = dayPlusTwo(current);
+                        } else {
+                            out.writeLn(current.getTime().toString());
+                            end = dayPlusTwo(current);
+                        }
+                    }
+                }
+            } else { // everyweek
+                Calendar current, end;
+                end = dayPlusWeek(list.get(0));
+                int part = 1;
+                for (int j = 0; j < list.size(); j++) {
+                    if (j == 0) {
+                        out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
+                        part++;
+                        current = list.get(0);
+                        out.writeLn(current.getTime().toString());
+                    } else {
+                        current = list.get(j);
+                        if (current.after(end)) {
+                            out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
+                            part++;
+                            out.writeLn(current.getTime().toString());
+                            end = dayPlusWeek(current);
+                        } else {
+                            out.writeLn(current.getTime().toString());
+                            end = dayPlusWeek(current);
+                        }
+                    }
+                }
+            }
+        }
+
+        out.writeLn("для продолжения нажмите enter");
+        in.readLn();
+        return;
 
     }
 
@@ -145,6 +212,8 @@ public class StatWonts {
         int size = user.getWonts().size();
         if (size == 0) {
             out.writeLn("У пользователя нет привычек");
+            out.writeLn("для продолжения нажмите enter");
+            in.readLn();
             return;
         }
         while (true) {
@@ -168,7 +237,7 @@ public class StatWonts {
                 out.writeLn("""
                     введите дату конца периода в формате dd.mm.yyyy
                     например 30.10.2024
-                    exit для выхода в предыдущее меню""");
+                    exit для выхода в меню""");
                 String str2 = in.readLn();
                 if (str2.equals("exit")) return;
                 try {
@@ -177,6 +246,12 @@ public class StatWonts {
                     out.writeLn("неверный ввод");
                     continue;
                 }
+
+                if (date2.getTime() < date1.getTime()) {
+                    out.writeLn("вторая дата не может быть меньше первой");
+                    continue;
+                }
+
 
                 Calendar cal1 = Calendar.getInstance();
                 cal1.setTime(date1);
@@ -187,12 +262,28 @@ public class StatWonts {
                     Wont wont = user.getWonts().get(i);
                     if (wont.getFreq() == Freq.EVERYDAY) {
 
-                        double days = (double) (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
-                        double dones = wont.getListDone().stream()
+                        long days = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
+                        if (days == 0) {
+                            days = 1;
+                        }
+                        double doIt = wont.getListDone().stream()
                                 .filter(done -> done.after(cal1))
                                 .filter(done -> done.before(cal2))
                                 .count();
-                        double result = dones / days * 100;
+                        double result = doIt / days * 100;
+                        String str = String.format("привычка %s выполненна на %.2f процентов",
+                                wont.getName(), result);
+                        out.writeLn(str);
+                    } else {
+                        long weeks = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24 * 7);
+                        if (weeks == 0) {
+                            weeks = 1;
+                        }
+                        double doIt = wont.getListDone().stream()
+                                .filter(done -> done.after(cal1))
+                                .filter(done -> done.before(cal2))
+                                .count();
+                        double result = doIt / weeks * 100;
                         String str = String.format("привычка %s выполненна на %.2f процентов",
                                 wont.getName(), result);
                         out.writeLn(str);
@@ -238,5 +329,27 @@ public class StatWonts {
         startMonth.set(Calendar.SECOND, 0);
         startMonth.set(Calendar.MILLISECOND, 0);
         return startMonth;
+    }
+
+    public Calendar dayPlusTwo(Calendar day) {
+        Calendar startDay = Calendar.getInstance();
+        startDay.setTime(day.getTime());
+        startDay.set(Calendar.HOUR_OF_DAY, 0);
+        startDay.set(Calendar.MINUTE, 0);
+        startDay.set(Calendar.SECOND, 0);
+        startDay.set(Calendar.MILLISECOND, 0);
+        startDay.add(Calendar.DAY_OF_MONTH, 2);
+        return startDay;
+    }
+
+    public Calendar dayPlusWeek(Calendar day) {
+        Calendar startDay = Calendar.getInstance();
+        startDay.setTime(day.getTime());
+        startDay.set(Calendar.HOUR_OF_DAY, 0);
+        startDay.set(Calendar.MINUTE, 0);
+        startDay.set(Calendar.SECOND, 0);
+        startDay.set(Calendar.MILLISECOND, 0);
+        startDay.add(Calendar.DAY_OF_MONTH, 8);
+        return startDay;
     }
 }

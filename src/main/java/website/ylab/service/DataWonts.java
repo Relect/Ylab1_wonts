@@ -28,7 +28,7 @@ public class DataWonts {
                     4 для просмотра привычек,
                     5 для выполнения привычки,
                     6 для генерации статистики привычек,
-                    7 для серии выполнения всех привычек,
+                    7 для вывода серии выполнения всех привычек,
                     8 процент выполнения привычек за период времени,
                     9 отчёт о прогрессе выполнения привычек.
                     exit для выхода в предыдущее меню.""");
@@ -54,7 +54,7 @@ public class DataWonts {
                     statWonts.generateStat(in, out, user);
                     break;
                 case "7":
-                    statWonts.streak(out, user);
+                    statWonts.streak(in, out, user);
                     break;
                 case "8":
                     statWonts.getRateOfTime(in, out, user);
