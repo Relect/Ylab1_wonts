@@ -155,7 +155,7 @@ public class StatWonts {
             List<Calendar> list = wont.getListDone();
             if (wont.getFreq() == Freq.EVERYDAY) {
                 Calendar current, end;
-                end = dayPlusTwo(list.get(0));
+                end = getDayPlusTwo(list.get(0));
                 int part = 1;
                 for (int j = 0; j < list.size(); j++) {
                     if (j == 0) {
@@ -169,16 +169,16 @@ public class StatWonts {
                             out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
                             part++;
                             out.writeLn(current.getTime().toString());
-                            end = dayPlusTwo(current);
+                            end = getDayPlusTwo(current);
                         } else {
                             out.writeLn(current.getTime().toString());
-                            end = dayPlusTwo(current);
+                            end = getDayPlusTwo(current);
                         }
                     }
                 }
             } else { // everyweek
                 Calendar current, end;
-                end = dayPlusWeek(list.get(0));
+                end = getDayPlusWeek(list.get(0));
                 int part = 1;
                 for (int j = 0; j < list.size(); j++) {
                     if (j == 0) {
@@ -192,10 +192,10 @@ public class StatWonts {
                             out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
                             part++;
                             out.writeLn(current.getTime().toString());
-                            end = dayPlusWeek(current);
+                            end = getDayPlusWeek(current);
                         } else {
                             out.writeLn(current.getTime().toString());
-                            end = dayPlusWeek(current);
+                            end = getDayPlusWeek(current);
                         }
                     }
                 }
@@ -296,7 +296,31 @@ public class StatWonts {
     }
 
     public void getReport(Write out, User user) {
-        // todo
+
+        for (Wont wont: user.getWonts()) {
+
+            List<Calendar> list = wont.getListDone();
+            if (list.isEmpty()) continue;
+
+            Calendar current = list.get(0);
+            int count = 1;
+            Calendar endDay = getDayPlusTwo(current);
+
+            for (int i = 1; i < list.size() || count == 24; i++) {
+                current = list.get(i);
+                if (current.after(endDay)) {
+                    count = 0;
+                } else {
+                    count++;
+                }
+                endDay = getDayPlusTwo(current);
+            }
+            if (count == 24) {
+                out.writeLn("привычка " + wont.getName() + " выполнялась 24 дня подряд");
+            } else {
+                out.writeLn("привычка " + wont.getName() + " не выполнялась 24 дня подряд");
+            }
+        }
     }
 
     public Calendar getDay() {
@@ -329,7 +353,7 @@ public class StatWonts {
         return startMonth;
     }
 
-    public Calendar dayPlusTwo(Calendar day) {
+    public Calendar getDayPlusTwo(Calendar day) {
         Calendar startDay = Calendar.getInstance();
         startDay.setTime(day.getTime());
         startDay.set(Calendar.HOUR_OF_DAY, 0);
@@ -340,7 +364,7 @@ public class StatWonts {
         return startDay;
     }
 
-    public Calendar dayPlusWeek(Calendar day) {
+    public Calendar getDayPlusWeek(Calendar day) {
         Calendar startDay = Calendar.getInstance();
         startDay.setTime(day.getTime());
         startDay.set(Calendar.HOUR_OF_DAY, 0);
