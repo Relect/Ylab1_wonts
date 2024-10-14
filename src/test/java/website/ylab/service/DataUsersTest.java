@@ -25,9 +25,9 @@ public class DataUsersTest {
     public void beforeEach() {
         dataUsers = new DataUsers();
         Mockito.when(in.readLn())
-                .thenReturn("Gennady")
-                .thenReturn("relect@bk.ru")
-                .thenReturn("123");
+                .thenReturn(Constants.USER_NAME)
+                .thenReturn(Constants.USER_EMAIL)
+                .thenReturn(Constants.USER_PASSWORD);
     }
     @Test
     public void addUserTest1() {
@@ -37,25 +37,25 @@ public class DataUsersTest {
     @Test
     public void addUserTest2() {
         dataUsers.addUser(in, out);
-        User actual = dataUsers.getUsers().get("relect@bk.ru");
-        User expected = new User("Gennady", "relect@bk.ru", "123");
+        User actual = dataUsers.getUsers().get(Constants.USER_EMAIL);
+        User expected = new User(Constants.USER_NAME, Constants.USER_EMAIL, Constants.USER_PASSWORD);
         assertThat(actual).isEqualTo(expected);
     }
     @Test
     public void loginTest() {
         dataUsers.addUser(in, out);
 
-        Mockito.when(in.readLn()).thenReturn("relect@bk.ru")
-                .thenReturn("123");
+        Mockito.when(in.readLn()).thenReturn(Constants.USER_EMAIL)
+                .thenReturn(Constants.USER_PASSWORD);
         User actual = dataUsers.login(in, out);
-        User expected = dataUsers.users.get("relect@bk.ru");
+        User expected = dataUsers.users.get(Constants.USER_EMAIL);
         assertThat(actual).isEqualTo(expected);
     }
     @Test
     public void deleteTest() {
         dataUsers.addUser(in, out);
 
-        dataUsers.deleteUser("relect@bk.ru");
+        dataUsers.deleteUser(Constants.USER_EMAIL);
         assertThat(dataUsers.getUsers()).hasSize(1);
     }
     @Test
@@ -64,9 +64,9 @@ public class DataUsersTest {
 
         Mockito.when(in.readLn()).thenReturn("3")
                 .thenReturn("321");
-        dataUsers.editUser("relect@bk.ru", in, out);
-        User actual = dataUsers.getUsers().get("relect@bk.ru");
-        User expected = new User("Gennady", "relect@bk.ru", "321");
+        dataUsers.editUser(Constants.USER_EMAIL, in, out);
+        User actual = dataUsers.getUsers().get(Constants.USER_EMAIL);
+        User expected = new User(Constants.USER_NAME, Constants.USER_EMAIL, "321");
         assertThat(actual).isEqualTo(expected);
     }
 
