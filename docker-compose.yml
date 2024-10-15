@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+  postgres-db:
+    image: postgres:latest
+    container_name: ${POSTGRES_HOST}
+    env_file:
+      - .env
+    command: -p ${POSTGRES_INTERNAL_PORT}
+    ports:
+      - ${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}
+    volumes:
+      - ./postgres/pg_hba.conf:/etc/pg_hba.conf
+      - ./postgres/initScript:/docker-entrypoint-initdb.d
+      - ./postgres/pg_data:/var/lib/postgresql/data/pg_data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: md5
+      PGDATA: /var/lib/postgresql/data/pg_data
