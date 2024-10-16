@@ -1,6 +1,7 @@
 package website.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -43,7 +44,7 @@ public class DataWontsTest {
 
         dataWonts.addWont(in, out, user);
     }
-
+    @DisplayName("проверка добавления привычки")
     @Test
     public void addWontsTest() {
 
@@ -56,7 +57,7 @@ public class DataWontsTest {
         assertThat(wont.getFreq()).isEqualTo(Freq.EVERYDAY);
         assertThat(wont.getStatus()).isEqualTo(Status.DEFFERRED);
     }
-
+    @DisplayName("проверка обновления привычки")
     @Test
     public void editWontTest() {
         Mockito.when(in.readLn()).thenReturn("чистка зубов")
@@ -67,7 +68,7 @@ public class DataWontsTest {
         Wont wont = user.getWonts().get(0);
         assertThat(wont.getInfo()).isEqualTo("защищает зубы");
     }
-
+    @DisplayName("проверка удаления привычки")
     @Test
     public void deleteWontTest() {
         Mockito.when(in.readLn()).thenReturn("чистка зубов");

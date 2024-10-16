@@ -1,5 +1,8 @@
 package website.ylab.custom;
 
+/**
+ * Учётная запись администратора.
+ */
 public class Admin {
 
     public static String name = "admin";

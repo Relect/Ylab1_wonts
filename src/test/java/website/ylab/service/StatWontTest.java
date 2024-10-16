@@ -1,6 +1,7 @@
 package website.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -44,7 +45,7 @@ public class StatWontTest {
 
         dataWonts.addWont(in, out, user);
     }
-
+    @DisplayName("проверка кол-ва привычек, после добавления")
     @Test
     public void doWontTest() {
         Mockito.when(in.readLn()).thenReturn(Constants.WONT_NAME);
