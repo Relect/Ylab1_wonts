@@ -3,7 +3,7 @@
    
    Для запуска приложения введите в терминале последовательно
 
-   sudo docker-compose up <br>
+   sudo docker-compose up -d <br>
    mvn compile <br>
    mvn exec:java -Dexec.mainClass="website.ylab.Main"
    

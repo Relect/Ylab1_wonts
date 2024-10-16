@@ -11,7 +11,6 @@ services:
     volumes:
       - ./postgres/pg_hba.conf:/etc/pg_hba.conf
       - ./postgres/initScript:/docker-entrypoint-initdb.d
-      - ./postgres/pg_data:/var/lib/postgresql/data/pg_data
     environment:
       POSTGRES_DB: ${POSTGRES_DATABASE}
       POSTGRES_USER: ${POSTGRES_USER}
