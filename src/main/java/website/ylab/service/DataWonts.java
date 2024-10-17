@@ -1,7 +1,6 @@
 package website.ylab.service;
 
 import website.ylab.custom.Freq;
-import website.ylab.custom.Status;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.model.Wont;
@@ -91,7 +90,7 @@ public class DataWonts {
             }
         }
         Wont wont = new Wont(wontName, wontInfo,
-                freq, Calendar.getInstance(), Status.DEFFERRED);
+                freq, Calendar.getInstance(), false);
         user.setWont(wont);
     }
 

@@ -26,5 +26,8 @@ public class Manager {
         return connection;
     }
 
+    public static Connection migrate(Connection conn) {
+        return conn;
+    }
 
 }

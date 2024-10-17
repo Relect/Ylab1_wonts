@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import website.ylab.custom.Freq;
-import website.ylab.custom.Status;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.model.Wont;
@@ -55,7 +54,7 @@ public class DataWontsTest {
         assertThat(wont.getName()).isEqualTo("чистка зубов");
         assertThat(wont.getInfo()).isEqualTo("предотвращает кариес");
         assertThat(wont.getFreq()).isEqualTo(Freq.EVERYDAY);
-        assertThat(wont.getStatus()).isEqualTo(Status.DEFFERRED);
+        assertThat(wont.isDone()).isEqualTo(false);
     }
     @DisplayName("проверка обновления привычки")
     @Test

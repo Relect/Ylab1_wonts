@@ -1,7 +1,6 @@
 package website.ylab.service;
 
 import website.ylab.custom.Freq;
-import website.ylab.custom.Status;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.model.Wont;
@@ -42,7 +41,7 @@ public class StatWonts {
                         return;
                     }
                     wont.addDoneWont(Calendar.getInstance());
-                    wont.setStatus(Status.DONE);
+                    wont.setDone(true);
                 } else {
                     Calendar startWeek = getWeek();
                     boolean getDone = wont.getListDone().stream()
@@ -52,7 +51,7 @@ public class StatWonts {
                         return;
                     }
                     wont.addDoneWont(Calendar.getInstance());
-                    wont.setStatus(Status.DONE);
+                    wont.setDone(true);
                 }
                 out.writeLn("Привычка " + wontName + " выполнена");
                 out.writeLn("для продолжения нажмите enter");
@@ -147,7 +146,7 @@ public class StatWonts {
         }
         for (int i = 0; i < size; i++) {
             Wont wont = user.getWonts().get(i);
-            if (wont.getStatus() == Status.DEFFERRED) {
+            if (!wont.isDone()) {
                 String str = String.format("Привычка %s не выполнена ни разу", wont.getName());
                 out.writeLn(str);
                 continue;

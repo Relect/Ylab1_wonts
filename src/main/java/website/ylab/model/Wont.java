@@ -3,7 +3,6 @@ package website.ylab.model;
 import lombok.Getter;
 import lombok.Setter;
 import website.ylab.custom.Freq;
-import website.ylab.custom.Status;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,16 +18,17 @@ public class Wont {
 
     private Freq freq;
     private Calendar createAt;
-    private Status status;
+    private boolean done;
+
     private List<Calendar> listDone = new ArrayList<>();
 
     public Wont(String name, String info,
-                Freq freq, Calendar createAt, Status status) {
+                Freq freq, Calendar createAt, boolean done) {
         this.name = name;
         this.info = info;
         this.freq = freq;
         this.createAt = createAt;
-        this.status = status;
+        this.done = done;
     }
 
     public void addDoneWont(Calendar calendar) {
@@ -42,7 +42,7 @@ public class Wont {
                 ", info='" + info + '\'' +
                 ", freq=" + freq +
                 ", createAt=" + createAt.getTime() +
-                ", status=" + status +
+                ", status=" + done +
                 '}';
     }
 }
