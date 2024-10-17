@@ -1,6 +1,13 @@
 package website.ylab;
 
 
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import website.ylab.db.Manager;
 import website.ylab.in.Read;
 import website.ylab.model.User;
@@ -8,12 +15,28 @@ import website.ylab.out.Write;
 import website.ylab.service.DataUsers;
 import website.ylab.service.DataWonts;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DatabaseException {
+
         Read in = new Read();
         Write out = new Write();
+
+        Connection conn = Manager.getConn();
+        Database database =
+                DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+        Liquibase liquibase =
+                new Liquibase("db/changelog/changelog.xml", new ClassLoaderResourceAccessor(), database);
+        try {
+            liquibase.update();
+            out.writeLn("migrate successful");
+
+        } catch (LiquibaseException e) {
+            throw new RuntimeException(e);
+        }
+        
         DataUsers dataUsers = new DataUsers();
         DataWonts dataWonts = new DataWonts(dataUsers);
         String command;
