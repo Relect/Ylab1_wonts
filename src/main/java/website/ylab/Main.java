@@ -27,6 +27,7 @@ public class Main {
         Connection conn = Manager.getConn();
         Database database =
                 DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+        database.setDefaultSchemaName("new");
         Liquibase liquibase =
                 new Liquibase("db/changelog/changelog.xml", new ClassLoaderResourceAccessor(), database);
         try {
@@ -36,7 +37,7 @@ public class Main {
         } catch (LiquibaseException e) {
             throw new RuntimeException(e);
         }
-        
+
         DataUsers dataUsers = new DataUsers();
         DataWonts dataWonts = new DataWonts(dataUsers);
         String command;

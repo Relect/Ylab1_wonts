@@ -4,9 +4,10 @@
    Для запуска приложения введите в терминале последовательно
 
    sudo docker-compose up <br>
+
    Дождитесь сборки и запуска контейнера,<br>
    откройте новый терминал этой дирректории и в ней запустите <br>
-   mvn liquibase:update <br>
+
    mvn compile <br>
    mvn exec:java -Dexec.mainClass="website.ylab.Main"
    
