@@ -15,19 +15,18 @@ public class Wont {
 
     private String name;
     private String info;
-
     private Freq freq;
-    private Calendar createAt;
+    private Calendar createdAt;
     private boolean done;
 
     private List<Calendar> listDone = new ArrayList<>();
 
     public Wont(String name, String info,
-                Freq freq, Calendar createAt, boolean done) {
+                Freq freq, Calendar createdAt, boolean done) {
         this.name = name;
         this.info = info;
         this.freq = freq;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
         this.done = done;
     }
 
@@ -41,7 +40,7 @@ public class Wont {
                 "name='" + name + '\'' +
                 ", info='" + info + '\'' +
                 ", freq=" + freq +
-                ", createAt=" + createAt.getTime() +
+                ", createAt=" + createdAt.getTime() +
                 ", status=" + done +
                 '}';
     }
