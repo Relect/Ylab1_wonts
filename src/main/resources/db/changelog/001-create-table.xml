@@ -46,7 +46,7 @@
                         <column name="freq" type="varchar(20)">
                                 <constraints nullable="false"/>
                         </column>
-                        <column name="created_at" type="datetime" defaultValue="${now}">
+                        <column name="created_at" type="datetime" defaultValueDate="${now}">
                                 <constraints nullable="false"/>
                         </column>
                         <column name="done" type="boolean" defaultValue="false">
@@ -62,7 +62,7 @@
                                              referencedTableName="wonts"
                                              referencedColumnNames="id"/>
                         </column>
-                        <column name="exec" type="datetime" defaultValue="${now}">
+                        <column name="exec" type="datetime" defaultValueDate="${now}">
                                 <constraints nullable="false"/>
                         </column>
                 </createTable>
