@@ -65,7 +65,9 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.verson}</version>
                 <configuration>
+                    <propertyFile>liquibase.properties</propertyFile>
                     <changeLogFile>src/main/resources/db/changelog/changelog.xml</changeLogFile>
+                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
                 </configuration>
             </plugin>
         </plugins>
