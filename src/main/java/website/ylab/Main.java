@@ -8,7 +8,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import website.ylab.db.Manager;
+import website.ylab.db.DBManager;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
@@ -19,15 +19,27 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Main {
-    public static void main(String[] args) throws DatabaseException {
+    public static void main(String[] args) {
 
         Read in = new Read();
         Write out = new Write();
 
-        Connection conn = Manager.getConn();
-        Database database =
-                DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-        database.setDefaultSchemaName("new");
+        Connection conn = null;
+        try {
+            conn = DBManager.getConn();
+        } catch (SQLException e) {
+            out.writeLn("ошибка соединения getConn");
+            throw new RuntimeException(e);
+        }
+        Database database;
+        try {
+            database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+            database.setDefaultSchemaName("new");
+        } catch (DatabaseException e) {
+            out.writeLn("ошибка создания database для liquibase");
+            throw new RuntimeException(e);
+        }
+
         Liquibase liquibase =
                 new Liquibase("db/changelog/changelog.xml", new ClassLoaderResourceAccessor(), database);
         try {
@@ -35,8 +47,10 @@ public class Main {
             out.writeLn("migrate successful");
 
         } catch (LiquibaseException e) {
+            out.writeLn("ошибка миграций Liquibase");
             throw new RuntimeException(e);
         }
+        out.writeLn("");
 
         DataUsers dataUsers = new DataUsers();
         DataWonts dataWonts = new DataWonts(dataUsers);
@@ -54,7 +68,7 @@ public class Main {
                     out.writeLn("Thank you for choosing Ylab");
                     System.exit(0);
                 case "1":
-                    dataUsers.addUser(in, out);
+                    dataUsers.addUser(in, out, conn);
                     break;
                 case "2":
                     User user = dataUsers.login(in, out);

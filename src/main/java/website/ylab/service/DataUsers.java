@@ -6,6 +6,7 @@ import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
 
+import java.sql.Connection;
 import java.util.*;
 
 public class DataUsers {
@@ -21,7 +22,7 @@ public class DataUsers {
         passwords.add(Admin.password);
     }
 
-    public void addUser(Read in, Write out) {
+    public void addUser(Read in, Write out, Connection conn) {
 
         out.writeLn("Введите имя пользователя");
         String name = in.readLn();
