@@ -32,7 +32,7 @@ public class StatWonts {
             }
             if (j != -1) {
                 Wont wont = list.get(j);
-                if (wont.getFreq() == Freq.EVERYDAY) {
+                if (wont.getFreq2() == Freq.EVERYDAY) {
                     Calendar startDay = getDay();
                     boolean getDone = wont.getListDone().stream()
                             .anyMatch(date -> date.after(startDay));
@@ -152,7 +152,7 @@ public class StatWonts {
                 continue;
             }
             List<Calendar> list = wont.getListDone();
-            if (wont.getFreq() == Freq.EVERYDAY) {
+            if (wont.getFreq2() == Freq.EVERYDAY) {
                 Calendar current, end;
                 end = getDayPlusTwo(list.get(0));
                 int part = 1;
@@ -257,7 +257,7 @@ public class StatWonts {
 
                 for (int i = 0; i < size; i++) {
                     Wont wont = user.getWonts().get(i);
-                    if (wont.getFreq() == Freq.EVERYDAY) {
+                    if (wont.getFreq2() == Freq.EVERYDAY) {
 
                         long days = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
                         if (days == 0) {

@@ -13,19 +13,22 @@ import java.util.List;
 @Getter
 public class Wont {
 
+    private long id;
     private String name;
     private String info;
-    private Freq freq;
+    private Freq freq2;
+    private String freq;
     private Calendar createdAt;
     private boolean done;
 
     private List<Calendar> listDone = new ArrayList<>();
 
+    public Wont() {}
     public Wont(String name, String info,
-                Freq freq, Calendar createdAt, boolean done) {
+                Freq freq2, Calendar createdAt, boolean done) {
         this.name = name;
         this.info = info;
-        this.freq = freq;
+        this.freq2 = freq2;
         this.createdAt = createdAt;
         this.done = done;
     }
@@ -39,7 +42,7 @@ public class Wont {
         return "Wont{" +
                 "name='" + name + '\'' +
                 ", info='" + info + '\'' +
-                ", freq=" + freq +
+                ", freq=" + freq2 +
                 ", createAt=" + createdAt.getTime() +
                 ", status=" + done +
                 '}';
