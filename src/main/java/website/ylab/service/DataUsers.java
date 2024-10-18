@@ -105,7 +105,7 @@ public class DataUsers {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             while (!rs.next()) {
-                out.writeLn("Этот email занят, введите другой");
+                out.writeLn("Этот email отсутствует, введите другой");
                 email = in.readLn();
                 rs.close();
                 ps.close();
@@ -135,8 +135,9 @@ public class DataUsers {
         }
     }
 
-    public void deleteUser(String email, Write out) {
+    public boolean deleteUser(String email, Write out) {
 
+        boolean del = false;
         try (Connection conn = DBManager.getConn()) {
             String sql = "SELECT id from new.users where email = ?;";
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -163,11 +164,12 @@ public class DataUsers {
                 PreparedStatement ps5 = conn.prepareStatement(slq1_del);
                 ps5.setLong(1, user_id);
                 ps5.executeUpdate();
+                del = true;
             }
-            out.writeLn("пользователь" + email + " удалён");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return del;
     }
 
     public void editUser(String email, Read in, Write out) {
@@ -184,34 +186,86 @@ public class DataUsers {
                 case "1":
                     out.writeLn("Введите новое имя пользователя");
                     String name = in.readLn();
-                    User user = users.get(email);
-                    user.setName(name);
-                    users.put(email, user);
+
+                    try (Connection conn = DBManager.getConn()) {
+                        String sql = "UPDATE new.users set name = ? WHERE email = ?;";
+                        PreparedStatement ps = conn.prepareStatement(sql);
+                        ps.setString(1, name);
+                        ps.setString(2, email);
+                        int count = ps.executeUpdate();
+                        if (count != 0) {
+                            out.writeLn("пользователь " + email + " обновлён.");
+                        } else {
+                            out.writeLn("пользователь " + email + " не найден");
+                        }
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "2":
-                    User user1 = users.get(email);
                     out.writeLn("Введите новый email пользователя");
                     String newEmail = in.readLn();
-                    while (users.containsKey(newEmail)) {
-                        out.writeLn("Этот email занят, введите другой");
-                        email = in.readLn();
+
+                    try (Connection conn = DBManager.getConn()) {
+                        String sql = "SELECT mail from new.users where email = ?;";
+                        PreparedStatement ps = conn.prepareStatement(sql);
+                        ps.setString(1, newEmail);
+                        ResultSet rs = ps.executeQuery();
+                        while (rs.next()) {
+                            out.writeLn("Этот email существует, введите другой");
+                            newEmail = in.readLn();
+                            rs.close();
+                            ps.close();
+                            ps = conn.prepareStatement(sql);
+                            ps.setString(1, newEmail);
+                            rs = ps.executeQuery();
+                        }
+                        rs.close();
+                        ps.close();
+                        sql = "UPDATE new.users SET email = ? WHERE email = ?;";
+                        ps = conn.prepareStatement(sql);
+                        ps.setString(1, newEmail);
+                        ps.setString(2, email);
+                        int count = ps.executeUpdate();
+                        if (count != 0) {
+                            out.writeLn("Пользователь " + email + " обновлён на " + newEmail);
+                        }
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                    users.remove(email);
-                    users.put(newEmail, user1);
                     break;
                 case "3":
-                    User user2 = users.get(email);
-                    String password = user2.getPassword();
                     out.writeLn("Введите новый пароль пользователя");
                     String newPassword = in.readLn();
-                    while (passwords.contains(newPassword)) {
-                        out.writeLn("Этот пароль занят, введите другой");
-                        email = in.readLn();
+
+                    try (Connection conn = DBManager.getConn()) {
+                        String sql = "SELECT mail from new.users where password = ?;";
+                        PreparedStatement ps = conn.prepareStatement(sql);
+                        ps.setString(1, newPassword);
+                        ResultSet rs = ps.executeQuery();
+                        while (rs.next()) {
+                            out.writeLn("Этот пароль существует, введите другой");
+                            newPassword = in.readLn();
+                            rs.close();
+                            ps.close();
+                            ps = conn.prepareStatement(sql);
+                            ps.setString(1, newPassword);
+                            rs = ps.executeQuery();
+                        }
+                        rs.close();
+                        ps.close();
+                        sql = "UPDATE new.users SET password = ? WHERE email = ?;";
+                        ps = conn.prepareStatement(sql);
+                        ps.setString(1, newPassword);
+                        ps.setString(2, email);
+                        int count = ps.executeUpdate();
+                        if (count != 0) {
+                            out.writeLn("Пароль пользователь обновлён на " + newPassword);
+                        }
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                    passwords.remove(password);
-                    passwords.add(newPassword);
-                    user2.setPassword(newPassword);
-                    users.put(email, user2);
+                    break;
                 case "exit":
                     return;
                 default:
