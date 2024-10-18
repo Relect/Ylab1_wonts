@@ -135,7 +135,7 @@ public class DataUsers {
         }
     }
 
-    public void deleteUser(String email) {
+    public void deleteUser(String email, Write out) {
 
         try (Connection conn = DBManager.getConn()) {
             String sql = "SELECT id from new.users where email = ?;";
@@ -149,7 +149,7 @@ public class DataUsers {
                 ps2.setLong(1, user_id);
                 ResultSet rs2 = ps2.executeQuery();
                 while (rs2.next()) {
-                    long wont_id = rs2.getLong("id")
+                    long wont_id = rs2.getLong("id");
                     String sql3 = "DELETE from new.done where wont_id = ?;";
                     PreparedStatement ps3 = conn.prepareStatement(sql3);
                     ps3.setLong(1, wont_id);
@@ -164,6 +164,7 @@ public class DataUsers {
                 ps5.setLong(1, user_id);
                 ps5.executeUpdate();
             }
+            out.writeLn("пользователь" + email + " удалён");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
