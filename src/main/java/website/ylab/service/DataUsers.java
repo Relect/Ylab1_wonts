@@ -56,14 +56,18 @@ public class DataUsers {
         try (Connection conn = DBManager.getConn()) {
             String sql = "SELECT count(*) from new.users where password = ?;";
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, email);
+            ps.setString(1, password);
             ResultSet rs = ps.executeQuery();
             rs.next();
             int count = rs.getInt("count");
             while (count != 0) {
+                rs.close();
+                ps.close();
                 out.writeLn("Этот пароль занят, введите другой");
-                email = in.readLn();
-                ps.setString(1, email);
+
+                ps = conn.prepareStatement(sql);
+                password = in.readLn();
+                ps.setString(1, password);
                 rs = ps.executeQuery();
                 rs.next();
                 count = rs.getInt("count");
@@ -95,28 +99,74 @@ public class DataUsers {
 
         out.writeLn("Введите email пользователя");
         String email = in.readLn();
-        while (!users.containsKey(email)) {
-            out.writeLn("такой email отсутствует, введите другой или exit");
-            email = in.readLn();
-            if (email.equals("exit")) return null;
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "SELECT id, name, email, password, admin, block from new.users where email = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            while (!rs.next()) {
+                out.writeLn("Этот email занят, введите другой");
+                email = in.readLn();
+                rs.close();
+                ps.close();
+                ps = conn.prepareStatement(sql);
+                ps.setString(1, email);
+                rs = ps.executeQuery();
+            }
+
+            out.writeLn("Введите пароль пользователя");
+            String password = in.readLn();
+
+            while (!rs.getString("password").equals(password)) {
+                out.writeLn("Пароль не совпадает, введите правильный пароль или exit");
+                password = in.readLn();
+                if (password.equals("exit")) return null;
+            }
+            String name = rs.getString("name");
+            User user = new User(name, email, password);
+            user.setId(rs.getLong("id"));
+            user.setAdmin(rs.getBoolean("admin"));
+            user.setBlock(rs.getBoolean("block"));
+            out.writeLn("вход выполнен");
+            return user;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        out.writeLn("Введите пароль пользователя");
-        String password = in.readLn();
-        while (!users.get(email).getPassword().equals(password)) {
-            out.writeLn("Пароль не совпадает, введите правильный пароль или exit");
-            password = in.readLn();
-            if (password.equals("exit")) return null;
-        }
-        out.writeLn("вход выполнен");
-        User user = users.get(email);
-        out.writeLn(user.toString());
-        return user;
     }
 
     public void deleteUser(String email) {
-        String pass = users.get(email).getPassword();
-        passwords.remove(pass);
-        users.remove(email);
+
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "SELECT id from new.users where email = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                long user_id = rs.getLong("id");
+                String sql2 = "SELECT id from new.wonts where user_id = ?;";
+                PreparedStatement ps2 = conn.prepareStatement(sql2);
+                ps2.setLong(1, user_id);
+                ResultSet rs2 = ps2.executeQuery();
+                while (rs2.next()) {
+                    long wont_id = rs2.getLong("id")
+                    String sql3 = "DELETE from new.done where wont_id = ?;";
+                    PreparedStatement ps3 = conn.prepareStatement(sql3);
+                    ps3.setLong(1, wont_id);
+                    ps3.executeUpdate();
+                    String slq2_del = "DELETE from new.wonts where id = ?;";
+                    PreparedStatement ps4 = conn.prepareStatement(slq2_del);
+                    ps4.setLong(1, wont_id);
+                    ps4.executeUpdate();
+                }
+                String slq1_del = "DELETE from new.users where id = ?;";
+                PreparedStatement ps5 = conn.prepareStatement(slq1_del);
+                ps5.setLong(1, user_id);
+                ps5.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void editUser(String email, Read in, Write out) {

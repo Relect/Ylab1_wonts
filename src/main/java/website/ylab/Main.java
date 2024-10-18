@@ -24,6 +24,7 @@ public class Main {
         Read in = new Read();
         Write out = new Write();
 
+
         Connection conn = null;
         try {
             conn = DBManager.getConn();
