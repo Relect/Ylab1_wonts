@@ -45,8 +45,9 @@ public class Main {
         try {
             liquibase.update();
             out.writeLn("migrate successful");
+            conn.close();
 
-        } catch (LiquibaseException e) {
+        } catch (LiquibaseException | SQLException e) {
             out.writeLn("ошибка миграций Liquibase");
             throw new RuntimeException(e);
         }
@@ -68,7 +69,7 @@ public class Main {
                     out.writeLn("Thank you for choosing Ylab");
                     System.exit(0);
                 case "1":
-                    dataUsers.addUser(in, out, conn);
+                    dataUsers.addUser(in, out);
                     break;
                 case "2":
                     User user = dataUsers.login(in, out);

@@ -18,10 +18,8 @@ public class DBManager {
             properties.load(new FileReader("database.properties"));
             String driverName = (String) properties.get("db.driver");
             Class.forName(driverName);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         DATABASE_URL = (String) properties.get("db.url");
     }
