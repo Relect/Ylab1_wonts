@@ -122,7 +122,7 @@ public class DataWonts {
             if (wontName.equals("exit")) return;
 
             try (Connection conn = DBManager.getConn()) {
-                String sql = "SELECT new.wonts WHERE user_id = ? AND name = ?;";
+                String sql = "SELECT name FROM new.wonts WHERE user_id = ? AND name = ?;";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setLong(1, user.getId());
                 ps.setString(2, wontName);
