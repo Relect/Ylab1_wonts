@@ -406,29 +406,51 @@ public class StatWonts {
 
     public void getReport(Write out, User user) {
 
-        for (Wont wont: user.getWonts()) {
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "SELECT id, name, done FROM new.wonts WHERE user_id = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, user.getId());
+            ResultSet rs = ps.executeQuery();
 
-            List<Calendar> list = wont.getListDone();
-            if (list.isEmpty()) continue;
 
-            Calendar current = list.get(0);
-            int count = 1;
-            Calendar endDay = getDayPlusTwo(current);
-
-            for (int i = 1; i < list.size() || count == 24; i++) {
-                current = list.get(i);
-                if (current.after(endDay)) {
-                    count = 0;
-                } else {
-                    count++;
+            while (rs.next()){
+                String wontName = rs.getString("name");
+                if (!rs.getBoolean("done")) {
+                    out.writeLn("привычка " + wontName + " не выполнялась 24 дня подряд");
+                    continue;
                 }
-                endDay = getDayPlusTwo(current);
+                long wont_id = rs.getLong("id");
+                List<Calendar> list = new ArrayList<>();
+                String sql2 = "SELECT exec FROM new.done WHERE wont_id = ? ORDER BY exec;";
+                PreparedStatement ps2 = conn.prepareStatement(sql2);
+                ps2.setLong(1, wont_id);
+                ResultSet rs2 = ps2.executeQuery();
+                while (rs2.next()) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(rs2.getTimestamp("exec"));
+                    list.add(cal);
+                }
+                Calendar current = list.get(0);
+                int count = 1;
+                Calendar endDay = getDayPlusTwo(current);
+
+                for (int i = 1; i < list.size() && count != 24; i++) {
+                    current = list.get(i);
+                    if (current.after(endDay)) {
+                        count = 0;
+                    } else {
+                        count++;
+                    }
+                    endDay = getDayPlusTwo(current);
+                }
+                if (count == 24) {
+                    out.writeLn("привычка " + wontName + " выполнялась 24 дня подряд");
+                } else {
+                    out.writeLn("привычка " + wontName + " не выполнялась 24 дня подряд");
+                }
             }
-            if (count == 24) {
-                out.writeLn("привычка " + wont.getName() + " выполнялась 24 дня подряд");
-            } else {
-                out.writeLn("привычка " + wont.getName() + " не выполнялась 24 дня подряд");
-            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
