@@ -60,6 +60,7 @@ public class DataWonts {
                     break;
                 case "8":
                     statWonts.getRateOfTime(in, out, user);
+                    break;
                 case "9":
                     statWonts.getReport(out, user);
                     break;
