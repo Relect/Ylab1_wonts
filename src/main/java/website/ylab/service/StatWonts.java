@@ -10,10 +10,8 @@ import website.ylab.out.Write;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 public class StatWonts {
 
@@ -208,68 +206,87 @@ public class StatWonts {
     }
 
     public void streak(Read in, Write out, User user) {
-        int size = user.getWonts().size();
-        if (size == 0) {
-            out.writeLn("У пользователя нет привычек");
-            out.writeLn("для продолжения нажмите enter");
-            in.readLn();
-            return;
-        }
-        for (int i = 0; i < size; i++) {
-            Wont wont = user.getWonts().get(i);
-            if (!wont.isDone()) {
-                String str = String.format("Привычка %s не выполнена ни разу", wont.getName());
-                out.writeLn(str);
-                continue;
-            }
-            List<Calendar> list = wont.getListDone();
-            if (wont.getFreq() == Freq.EVERYDAY.name()) {
-                Calendar current, end;
-                end = getDayPlusTwo(list.get(0));
-                int part = 1;
-                for (int j = 0; j < list.size(); j++) {
-                    if (j == 0) {
-                        out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
-                        part++;
-                        current = list.get(0);
-                        out.writeLn(current.getTime().toString());
+
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "SELECT id, name, freq, done FROM new.wonts WHERE user_id = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, user.getId());
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                out.writeLn("У пользователя нет привычек");
+            } else {
+                do {
+                    long wont_id = rs.getLong("id");
+                    String wontName = rs.getString("name");
+                    boolean done = rs.getBoolean("done");
+
+                    if (!done) {
+                        String str = String.format("Привычка %s не выполнена ни разу", wontName);
+                        out.writeLn(str);
                     } else {
-                        current = list.get(j);
-                        if (current.after(end)) {
-                            out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
-                            part++;
-                            out.writeLn(current.getTime().toString());
-                            end = getDayPlusTwo(current);
-                        } else {
-                            out.writeLn(current.getTime().toString());
-                            end = getDayPlusTwo(current);
+                        List<Calendar> list = new ArrayList<>();
+                        String sql2 = "SELECT exec FROM new.done WHERE wont_id = ? ORDER BY exec;";
+                        PreparedStatement ps2 = conn.prepareStatement(sql2);
+                        ps2.setLong(1, wont_id);
+                        ResultSet rs2 = ps2.executeQuery();
+                        while (rs2.next()) {
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(rs2.getTimestamp("exec"));
+                            list.add(cal);
+                        }
+
+                        if (rs.getString("freq") == Freq.EVERYDAY.name()) {
+                            Calendar current, end;
+                            end = getDayPlusTwo(list.get(0));
+                            int part = 1;
+                            for (int j = 0; j < list.size(); j++) {
+                                if (j == 0) {
+                                    out.writeLn("Привычка" + wontName + ", " + part + " Серия.");
+                                    part++;
+                                    current = list.get(0);
+                                    out.writeLn(current.getTime().toString());
+                                } else {
+                                    current = list.get(j);
+                                    if (current.after(end)) {
+                                        out.writeLn("Привычка" + wontName + ", " + part + " Серия.");
+                                        part++;
+                                        out.writeLn(current.getTime().toString());
+                                        end = getDayPlusTwo(current);
+                                    } else {
+                                        out.writeLn(current.getTime().toString());
+                                        end = getDayPlusTwo(current);
+                                    }
+                                }
+                            }
+                        } else { // everyweek
+                            Calendar current, end;
+                            end = getDayPlusWeek(list.get(0));
+                            int part = 1;
+                            for (int j = 0; j < list.size(); j++) {
+                                if (j == 0) {
+                                    out.writeLn("Привычка" + wontName + ", " + part + " Серия.");
+                                    part++;
+                                    current = list.get(0);
+                                    out.writeLn(current.getTime().toString());
+                                } else {
+                                    current = list.get(j);
+                                    if (current.after(end)) {
+                                        out.writeLn("Привычка" + wontName + ", " + part + " Серия.");
+                                        part++;
+                                        out.writeLn(current.getTime().toString());
+                                        end = getDayPlusWeek(current);
+                                    } else {
+                                        out.writeLn(current.getTime().toString());
+                                        end = getDayPlusWeek(current);
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            } else { // everyweek
-                Calendar current, end;
-                end = getDayPlusWeek(list.get(0));
-                int part = 1;
-                for (int j = 0; j < list.size(); j++) {
-                    if (j == 0) {
-                        out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
-                        part++;
-                        current = list.get(0);
-                        out.writeLn(current.getTime().toString());
-                    } else {
-                        current = list.get(j);
-                        if (current.after(end)) {
-                            out.writeLn("Привычка" + wont.getName() + ", " + part + " Серия.");
-                            part++;
-                            out.writeLn(current.getTime().toString());
-                            end = getDayPlusWeek(current);
-                        } else {
-                            out.writeLn(current.getTime().toString());
-                            end = getDayPlusWeek(current);
-                        }
-                    }
-                }
+                } while (rs.next());
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         out.writeLn("для продолжения нажмите enter");
