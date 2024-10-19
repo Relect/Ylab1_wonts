@@ -57,6 +57,9 @@
         
         <changeSet id="create_table_done" author="Romanov Gennady">
                 <createTable tableName="done">
+                        <column name="id" autoIncrement="true" type="bigint">
+                                <constraints primaryKey="true" nullable="false"/>
+                        </column>
                         <column name="wont_id" type="bigint">
                                 <constraints foreignKeyName="wont_id_fk"
                                              referencedTableName="wonts"

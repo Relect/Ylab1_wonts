@@ -16,7 +16,6 @@ public class Wont {
     private long id;
     private String name;
     private String info;
-    private Freq freq2;
     private String freq;
     private Calendar createdAt;
     private boolean done;
@@ -25,10 +24,10 @@ public class Wont {
 
     public Wont() {}
     public Wont(String name, String info,
-                Freq freq2, Calendar createdAt, boolean done) {
+                String freq, Calendar createdAt, boolean done) {
         this.name = name;
         this.info = info;
-        this.freq2 = freq2;
+        this.freq = freq;
         this.createdAt = createdAt;
         this.done = done;
     }
@@ -42,7 +41,7 @@ public class Wont {
         return "Wont{" +
                 "name='" + name + '\'' +
                 ", info='" + info + '\'' +
-                ", freq=" + freq2 +
+                ", freq=" + freq +
                 ", createAt=" + createdAt.getTime() +
                 ", status=" + done +
                 '}';

@@ -16,13 +16,6 @@ public class DataUsers {
     final HashMap<String, User> users = new HashMap<>();
     private final HashSet<String> passwords = new HashSet<>();
 
-    {
-        User admin = new User(Admin.name, Admin.email, Admin.password);
-        admin.setAdmin(true);
-        users.put(Admin.email, admin);
-        passwords.add(Admin.password);
-    }
-
     public void addUser(Read in, Write out) {
 
         out.writeLn("Введите имя пользователя");
@@ -86,13 +79,9 @@ public class DataUsers {
             if (insert == 1) {
                 out.writeLn("Пользователь успешно добавлен.");
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        User user = new User(name, email, password);
-        passwords.add(password);
-        users.put(email, user);
     }
 
     public User login(Read in, Write out) {

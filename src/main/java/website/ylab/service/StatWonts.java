@@ -1,13 +1,19 @@
 package website.ylab.service;
 
 import website.ylab.custom.Freq;
+import website.ylab.db.DBManager;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -22,41 +28,56 @@ public class StatWonts {
             String wontName = in.readLn();
             if (wontName.equals("exit")) return;
 
-            List<Wont> list = user.getWonts();
-            int j = -1;
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getName().equals(wontName)) {
-                    j = i;
-                    break;
-                }
-            }
-            if (j != -1) {
-                Wont wont = list.get(j);
-                if (wont.getFreq2() == Freq.EVERYDAY) {
-                    Calendar startDay = getDay();
-                    boolean getDone = wont.getListDone().stream()
-                            .anyMatch(date -> date.after(startDay));
-                    if (getDone) {
-                        out.writeLn("привычка уже выполнена в течение предыдущих суток");
+            try (Connection conn = DBManager.getConn()) {
+                String sql = "SELECT id, freq, done FROM new.wonts WHERE name = ? AND user_id = ?;";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, wontName);
+                ps.setLong(2, user.getId());
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    long wont_id = rs.getLong("wont_id");
+                    String freq = rs.getString("freq");
+                    if (!rs.getBoolean("done")) {
+                        String sql2 = "UPDATE new.wonts SET done = true WHERE id = ?;";
+                        PreparedStatement ps2 = conn.prepareStatement(sql2);
+                        ps2.setLong(1, wont_id);
+                        ps2.executeUpdate();
+                        ps2.close();
+                        sql2 = "INSERT INTO new.done (wont_id) VALUES (?);";
+                        ps2 = conn.prepareStatement(sql2);
+                        ps2.setLong(1, wont_id);
+                        ps2.executeUpdate();
+                        out.writeLn("Привычка " + wontName + " выполнена");
+
+                    } else {
+                        String sql3 = "SELECT exec FROM new.done WHERE wont_id = ? " +
+                                " ORDER BY exec DESC;";
+                        PreparedStatement ps3 = conn.prepareStatement(sql3);
+                        ps3.setLong(1, wont_id);
+                        ResultSet rs3 = ps3.executeQuery();
+                        rs3.next();
+                        Date date = rs3.getTime("exec");
+                        Calendar last = Calendar.getInstance();
+                        last.setTime(date);
+                        Calendar start = freq == Freq.EVERYDAY.name() ? getDay() : getWeek();
+                        if (last.after(start)) {
+                            out.writeLn("привычка уже выполнялась");
+                        } else {
+                            sql = "INSERT INTO new.done (wont_id) VALUES (?);";
+                            ps.close();
+                            ps = conn.prepareStatement(sql);
+                            ps.setLong(1, wont_id);
+                            ps.executeUpdate();
+                            out.writeLn("Привычка " + wontName + " выполнена");
+                        }
                         return;
                     }
-                    wont.addDoneWont(Calendar.getInstance());
-                    wont.setDone(true);
                 } else {
-                    Calendar startWeek = getWeek();
-                    boolean getDone = wont.getListDone().stream()
-                            .anyMatch(date -> date.after(startWeek));
-                    if (getDone) {
-                        out.writeLn("привычка уже выполнена в течение предыдущей недели");
-                        return;
-                    }
-                    wont.addDoneWont(Calendar.getInstance());
-                    wont.setDone(true);
+                    out.writeLn("Привычка " + wontName + " не найдена");
                 }
-                out.writeLn("Привычка " + wontName + " выполнена");
-                out.writeLn("для продолжения нажмите enter");
-                in.readLn();
-                return;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -152,7 +173,7 @@ public class StatWonts {
                 continue;
             }
             List<Calendar> list = wont.getListDone();
-            if (wont.getFreq2() == Freq.EVERYDAY) {
+            if (wont.getFreq() == Freq.EVERYDAY.name()) {
                 Calendar current, end;
                 end = getDayPlusTwo(list.get(0));
                 int part = 1;
@@ -257,7 +278,7 @@ public class StatWonts {
 
                 for (int i = 0; i < size; i++) {
                     Wont wont = user.getWonts().get(i);
-                    if (wont.getFreq2() == Freq.EVERYDAY) {
+                    if (wont.getFreq() == Freq.EVERYDAY.name()) {
 
                         long days = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
                         if (days == 0) {

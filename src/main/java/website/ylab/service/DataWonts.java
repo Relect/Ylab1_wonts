@@ -84,10 +84,10 @@ public class DataWonts {
                 2 еженедельно.""");
             String str = in.readLn();
             if (str.equals("1")) {
-                freq = "everyday";
+                freq = Freq.EVERYDAY.name();
                 break;
             } else if (str.equals("2")) {
-                freq = "everyweek";
+                freq = Freq.EVERYWEEK.name();
                 break;
             } else {
                 out.writeLn("Неверный ввод");
@@ -174,10 +174,10 @@ public class DataWonts {
                                             2 еженедельно""");
                                     newFreq = in.readLn();
                                     if (newFreq.equals("1")) {
-                                        newFreq = "everyday";
+                                        newFreq = Freq.EVERYDAY.name();
                                         break;
                                     } else if (newFreq.equals("2")) {
-                                        newFreq = "everyweek";
+                                        newFreq = Freq.EVERYWEEK.name();
                                         break;
                                     } else {
                                         out.writeLn("неверный ввод");
