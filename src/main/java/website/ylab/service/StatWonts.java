@@ -7,16 +7,13 @@ import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class StatWonts {
 
@@ -61,7 +58,7 @@ public class StatWonts {
                         Date date = rs3.getTimestamp("exec");
                         Calendar last = Calendar.getInstance();
                         last.setTime(date);
-                        Calendar start = freq == Freq.EVERYDAY.name() ? getDay() : getWeek();
+                        Calendar start = freq.equals(Freq.EVERYDAY.name()) ? getDay() : getWeek();
                         if (last.after(start)) {
                             out.writeLn("привычка уже выполнялась");
                         } else {
@@ -91,69 +88,121 @@ public class StatWonts {
             String wontName = in.readLn();
             if (wontName.equals("exit")) return;
 
-            List<Wont> list = user.getWonts();
-            int j = -1;
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getName().equals(wontName)) {
-                    j = i;
-                    break;
-                }
-            }
-            if (j != -1) {
-                Wont wont = list.get(j);
-                while (true) {
-                    boolean exit = false;
-                    out.writeLn("""
-                            1 для генерации статистики за день,
-                            2 для генерации статистики за неделю,
-                            3 для генерации статистики за месяц,
-                            exit для выхода в предыдущее меню""");
-                    String command = in.readLn();
 
-                    switch (command) {
-                        case "1":
-                            out.writeLn(wont.toString());
-                            Calendar day = getDay();
-                            long done = wont.getListDone().stream()
-                                    .filter(calendar -> calendar.after(day))
-                                    .peek(calendar -> out.writeLn(calendar.getTime().toString()))
-                                    .count();
-                            out.writeLn("выполнена " + done + " раз");
-                            out.writeLn("для продолжения нажмите enter");
-                            in.readLn();
-                            break;
-                        case "2":
-                            out.writeLn(wont.toString());
-                            Calendar week = getWeek();
-                            long done2 = wont.getListDone().stream()
-                                    .filter(calendar -> calendar.after(week))
-                                    .peek(calendar -> out.writeLn(calendar.getTime().toString()))
-                                    .count();
-                            out.writeLn("выполнена " + done2 + " раз");
-                            out.writeLn("для продолжения нажмите enter");
-                            in.readLn();
-                            break;
-                        case "3":
-                            out.writeLn(wont.toString());
-                            Calendar month = getMonth();
-                            long done3 = wont.getListDone().stream()
-                                    .filter(calendar -> calendar.after(month))
-                                    .peek(calendar -> out.writeLn(calendar.getTime().toString()))
-                                    .count();
-                            out.writeLn("выполнена " + done3 + " раз");
-                            out.writeLn("для продолжения нажмите enter");
-                            in.readLn();
-                            break;
-                        case "exit":
-                            exit = true;
-                            break;
-                        default:
-                            out.writeLn("Команда неверна, повторите заново.");
+            try (Connection conn = DBManager.getConn()) {
+                String sql = "SELECT id, done FROM new.wonts WHERE user_id = ? AND name = ?;";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setLong(1, user.getId());
+                ps.setString(2, wontName);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    long wont_id = rs.getLong("id");
+                    boolean done = rs.getBoolean("done");
+                    if (!done) {
+                        out.writeLn("привычка " + wontName + "не выполнялась.");
+                    } else {
+                        while (true) {
+                            boolean exit = false;
+                            out.writeLn("""
+                                    1 для генерации статистики за день,
+                                    2 для генерации статистики за неделю,
+                                    3 для генерации статистики за месяц,
+                                    exit для выхода в предыдущее меню""");
+                            String command = in.readLn();
+
+                            switch (command) {
+                                case "1":
+                                    String sql2 = "SELECT count(*) FROM new.done WHERE wont_id = ? and exec >= ?";
+                                    PreparedStatement ps2 = conn.prepareStatement(sql2);
+                                    ps2.setLong(1, wont_id);
+                                    Calendar day = getDay();
+                                    ps2.setTimestamp(2, new Timestamp(day.getTimeInMillis()));
+                                    ResultSet rs2 = ps2.executeQuery();
+                                    long count = rs.getLong("count");
+                                    if (count == 0) {
+                                        out.writeLn("за день выполнений не найдено");
+                                    } else {
+                                        rs2.close();
+                                        ps2.close();
+                                        sql2 = "SELECT exec FROM new.done WHERE wont_id = ? and exec >= ?";
+                                        ps2 = conn.prepareStatement(sql2);
+                                        ps2.setLong(1, wont_id);
+                                        ps2.setTimestamp(2, new Timestamp(day.getTimeInMillis()));
+                                        rs2 = ps2.executeQuery();
+                                        while (rs2.next()) {
+                                            out.writeLn(rs2.getDate("exec").toString());
+                                        }
+                                        out.writeLn("выполнена " + count + " раз");
+                                    }
+                                    out.writeLn("для продолжения нажмите enter");
+                                    in.readLn();
+                                    break;
+                                case "2":
+                                    String sql3 = "SELECT count(*) FROM new.done WHERE wont_id = ? and exec >= ?";
+                                    PreparedStatement ps3 = conn.prepareStatement(sql3);
+                                    ps3.setLong(1, wont_id);
+                                    Calendar day3 = getWeek();
+                                    ps3.setTimestamp(2, new Timestamp(day3.getTimeInMillis()));
+                                    ResultSet rs3 = ps3.executeQuery();
+                                    long count3 = rs.getLong("count");
+                                    if (count3 == 0) {
+                                        out.writeLn("за неделю выполнений не найдено");
+                                    } else {
+                                        rs3.close();
+                                        ps3.close();
+                                        sql3 = "SELECT exec FROM new.done WHERE wont_id = ? and exec >= ?";
+                                        ps3 = conn.prepareStatement(sql3);
+                                        ps3.setLong(1, wont_id);
+                                        ps3.setTimestamp(2, new Timestamp(day3.getTimeInMillis()));
+                                        rs3 = ps3.executeQuery();
+                                        while (rs3.next()) {
+                                            out.writeLn(rs3.getDate("exec").toString());
+                                        }
+                                        out.writeLn("выполнена " + count3 + " раз");
+                                    }
+                                    out.writeLn("для продолжения нажмите enter");
+                                    in.readLn();
+                                    break;
+                                case "3":
+                                    String sql4 = "SELECT count(*) FROM new.done WHERE wont_id = ? and exec >= ?";
+                                    PreparedStatement ps4 = conn.prepareStatement(sql4);
+                                    ps4.setLong(1, wont_id);
+                                    Calendar day4 = getMonth();
+                                    ps4.setTimestamp(2, new Timestamp(day4.getTimeInMillis()));
+                                    ResultSet rs4 = ps4.executeQuery();
+                                    long count4 = rs.getLong("count");
+                                    if (count4 == 0) {
+                                        out.writeLn("за месяц выполнений не найдено");
+                                    } else {
+                                        rs4.close();
+                                        ps4.close();
+                                        sql4 = "SELECT exec FROM new.done WHERE wont_id = ? and exec >= ?";
+                                        ps4 = conn.prepareStatement(sql4);
+                                        ps4.setLong(1, wont_id);
+                                        ps4.setTimestamp(2, new Timestamp(day4.getTimeInMillis()));
+                                        rs4 = ps4.executeQuery();
+                                        while (rs4.next()) {
+                                            out.writeLn(rs4.getDate("exec").toString());
+                                        }
+                                        out.writeLn("выполнена " + count4 + " раз");
+                                    }
+                                    out.writeLn("для продолжения нажмите enter");
+                                    in.readLn();
+                                    break;
+                                case "exit":
+                                    exit = true;
+                                    break;
+                                default:
+                                    out.writeLn("Команда неверна, повторите заново.");
+                            }
+                            if (exit) break;
+                        }
                     }
-                    if (exit) break;
+                } else {
+                    out.writeLn("неверное название привычки");
                 }
-            } else {
-                out.writeLn("неверное название привычки");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
