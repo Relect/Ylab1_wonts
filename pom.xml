@@ -17,6 +17,8 @@
         <mockito.version>5.14.1</mockito.version>
         <assertj.version>3.26.3</assertj.version>
         <lombok.version>1.18.34</lombok.version>
+        <postgre.version>42.7.4</postgre.version>
+        <liquibase.verson>4.29.0</liquibase.verson>
     </properties>
 
     <dependencies>
@@ -44,7 +46,31 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgre.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.verson}</version>
+        </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.verson}</version>
+                <configuration>
+                    <propertyFile>liquibase.properties</propertyFile>
+                    <changeLogFile>src/main/resources/db/changelog/changelog.xml</changeLogFile>
+                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

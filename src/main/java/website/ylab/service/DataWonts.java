@@ -1,14 +1,17 @@
 package website.ylab.service;
 
 import website.ylab.custom.Freq;
-import website.ylab.custom.Status;
+import website.ylab.db.DBManager;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
-import java.util.Calendar;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 public class DataWonts {
 
@@ -44,7 +47,7 @@ public class DataWonts {
                     deleteWont(in, out, user);
                     break;
                 case "4":
-                    watchWonts(out, user);
+                    watchWonts(in, out, user);
                     break;
                 case "5":
                     statWonts.doWont(in, out, user);
@@ -57,6 +60,7 @@ public class DataWonts {
                     break;
                 case "8":
                     statWonts.getRateOfTime(in, out, user);
+                    break;
                 case "9":
                     statWonts.getReport(out, user);
                     break;
@@ -73,7 +77,7 @@ public class DataWonts {
         String wontName = in.readLn();
         out.writeLn("Введите описание привычки");
         String wontInfo = in.readLn();
-        Freq freq;
+        String freq;
         while (true) {
             out.writeLn("""
                 Введите частоту привычки:
@@ -81,18 +85,33 @@ public class DataWonts {
                 2 еженедельно.""");
             String str = in.readLn();
             if (str.equals("1")) {
-                freq = Freq.EVERYDAY;
+                freq = Freq.EVERYDAY.name();
                 break;
             } else if (str.equals("2")) {
-                freq = Freq.EVERYWEEK;
+                freq = Freq.EVERYWEEK.name();
                 break;
             } else {
                 out.writeLn("Неверный ввод");
             }
         }
-        Wont wont = new Wont(wontName, wontInfo,
-                freq, Calendar.getInstance(), Status.DEFFERRED);
-        user.setWont(wont);
+
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "INSERT INTO new.wonts (user_id, name, info, freq) " +
+                    " VALUES (?, ?, ?, ?);";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, user.getId());
+            ps.setString(2, wontName);
+            ps.setString(3, wontInfo);
+            ps.setString(4, freq);
+            int count = ps.executeUpdate();
+            if (count != 0) {
+                out.writeLn("Привычка " + wontName + " добавлена.");
+            } else {
+                out.writeLn("Привычка " + wontName + " не добавлена.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void editWont(Read in, Write out, User user) {
@@ -103,59 +122,89 @@ public class DataWonts {
             String wontName = in.readLn();
             if (wontName.equals("exit")) return;
 
-            List<Wont> list = user.getWonts();
-            int j = -1;
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).getName().equals(wontName)) {
-                    j = i;
-                    break;
-                }
-            }
-            if (j != -1) {
-                Wont wont = user.getWonts().get(j);
-                while (true) {
-                    out.writeLn("""
-                            1 новое название привычки,
-                            2 новое описание привычки,
-                            3 новая частота привычки
-                            exit для выхода в предыдущее меню""");
-                    String command = in.readLn();
-                    switch (command) {
-                        case "1":
-                            out.writeLn("введите новое название");
-                            String newName = in.readLn();
-                            wont.setName(newName);
-                            return;
-                        case "2":
-                            out.writeLn("введите новое описание");
-                            String newInfo = in.readLn();
-                            wont.setInfo(newInfo);
-                            return;
-                        case "3" :
-                            while (true) {
-                                out.writeLn("""
-                                        Введите новую частоту:
-                                        1 ежедневно,
-                                        2 еженедельно""");
-                                String newFreq = in.readLn();
-                                if (newFreq.equals("1")) {
-                                    wont.setFreq(Freq.EVERYDAY);
-                                    return;
-                                } else if (newFreq.equals("2")) {
-                                    wont.setFreq(Freq.EVERYWEEK);
-                                    return;
-                                } else {
-                                    out.writeLn("неверный ввод");
+            try (Connection conn = DBManager.getConn()) {
+                String sql = "SELECT name FROM new.wonts WHERE user_id = ? AND name = ?;";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setLong(1, user.getId());
+                ps.setString(2, wontName);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+
+                    while (true) {
+                        out.writeLn("""
+                                1 новое название привычки,
+                                2 новое описание привычки,
+                                3 новая частота привычки
+                                exit для выхода в предыдущее меню""");
+                        String command = in.readLn();
+                        switch (command) {
+                            case "1":
+                                out.writeLn("введите новое название");
+                                String newName = in.readLn();
+
+                                String sql2 = "UPDATE new.wonts SET name = ? WHERE name = ? AND user_id = ?;";
+                                PreparedStatement ps2 = conn.prepareStatement(sql2);
+                                ps2.setString(1, newName);
+                                ps2.setString(2, wontName);
+                                ps2.setLong(3, user.getId());
+                                int count = ps2.executeUpdate();
+                                if (count != 0) {
+                                    out.writeLn("Привычка " + wontName + " обновлена на " + newName);
                                 }
-                            }
-                        case "exit":
-                            return;
-                        default:
-                            out.writeLn("Команда неверна, повторите заново.");
+                                return;
+                            case "2":
+                                out.writeLn("введите новое описание");
+                                String newInfo = in.readLn();
+
+                                String sql3 = "UPDATE new.wonts SET info = ? WHERE name = ? AND user_id = ?;";
+                                PreparedStatement ps3 = conn.prepareStatement(sql3);
+                                ps3.setString(1, newInfo);
+                                ps3.setString(2, wontName);
+                                ps3.setLong(3, user.getId());
+                                int count3 = ps3.executeUpdate();
+                                if (count3 != 0) {
+                                    out.writeLn("Привычка " + wontName + " info обновлено на " + newInfo);
+                                }
+                                return;
+                            case "3":
+                                String newFreq;
+                                while (true) {
+                                    out.writeLn("""
+                                            Введите новую частоту:
+                                            1 ежедневно,
+                                            2 еженедельно""");
+                                    newFreq = in.readLn();
+                                    if (newFreq.equals("1")) {
+                                        newFreq = Freq.EVERYDAY.name();
+                                        break;
+                                    } else if (newFreq.equals("2")) {
+                                        newFreq = Freq.EVERYWEEK.name();
+                                        break;
+                                    } else {
+                                        out.writeLn("неверный ввод");
+                                    }
+                                }
+                                String sql4 = "UPDATE new.wonts SET freq = ? WHERE name = ? AND user_id = ?;";
+                                PreparedStatement ps4 = conn.prepareStatement(sql4);
+                                ps4.setString(1, newFreq);
+                                ps4.setString(2, wontName);
+                                ps4.setLong(3, user.getId());
+                                int count4 = ps4.executeUpdate();
+                                if (count4 != 0) {
+                                    out.writeLn("Привычка " + wontName + " freq обновлена на " + newFreq);
+                                }
+                                return;
+                            case "exit":
+                                return;
+                            default:
+                                out.writeLn("Команда неверна, повторите заново.");
+                        }
                     }
+                } else {
+                    out.writeLn("Неверный ввод");
                 }
-            } else {
-                out.writeLn("Неверный ввод");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -167,22 +216,78 @@ public class DataWonts {
         String wontName = in.readLn();
         if (wontName.equals("exit")) return;
 
-        List<Wont> list = user.getWonts();
-        int j = -1;
-        for (int i = 0; i < list.size() ; i++) {
-            if (list.get(i).getName().equals(wontName)) {
-                j = i;
-                break;
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "DELETE from new.wonts WHERE name = ? AND user_id = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, wontName);
+            ps.setLong(2, user.getId());
+            int count = ps.executeUpdate();
+            if (count != 0) {
+                out.writeLn("Привычка " + wontName + " удалена");
+            } else {
+                out.writeLn("Привычка " + wontName + " не найдена");
             }
-        }
-        if (j != -1) {
-            user.getWonts().remove(j);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void watchWonts(Write out, User user) {
-        for (Wont wont: user.getWonts()) {
-            out.writeLn(wont.toString());
+    public void watchWonts(Read in, Write out, User user) {
+
+        try (Connection conn = DBManager.getConn()) {
+            String sql = "Select name, info, freq, created_at, done from new.wonts " +
+                    "WHERE user_id = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, user.getId());
+            ResultSet rs = ps.executeQuery();
+            List<Wont> list = new ArrayList<>();
+            Wont wont;
+            while (rs.next()) {
+                wont = new Wont();
+                wont.setName(rs.getString("name"));
+                wont.setInfo(rs.getString("info"));
+                wont.setFreq(rs.getString("freq"));
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(rs.getTimestamp("created_at"));
+                wont.setCreatedAt(calendar);
+                wont.setDone(rs.getBoolean("done"));
+                list.add(wont);
+            }
+
+            if (list.isEmpty()) {
+                out.writeLn("список привычек пуст");
+            } else {
+                while (true) {
+                    out.writeLn("""
+                            Введите
+                            1 для просмотра всех привычек,
+                            2 отсортировать по дате,
+                            3 отсортировать по статусу
+                            exit для выхода в предыдущее меню""");
+                    String command = in.readLn();
+                    switch (command) {
+                        case "1":
+                            for (Wont wont1 : list) {
+                                out.writeLn(wont1.toString());
+                            }
+                            return;
+                        case "2":
+                            list.sort(Comparator.comparing(o -> o.getCreatedAt().getTime()));
+                            for (Wont wont1 : list) {
+                                out.writeLn(wont1.toString());
+                            }
+                            return;
+                        case "3":
+                            list.sort(Comparator.comparing(Wont::isDone));
+                        case "exit":
+                            return;
+                        default:
+                            out.writeLn("неверный ввод");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

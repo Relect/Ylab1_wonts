@@ -3,7 +3,6 @@ package website.ylab.model;
 import lombok.Getter;
 import lombok.Setter;
 import website.ylab.custom.Freq;
-import website.ylab.custom.Status;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,21 +13,23 @@ import java.util.List;
 @Getter
 public class Wont {
 
+    private long id;
     private String name;
     private String info;
+    private String freq;
+    private Calendar createdAt;
+    private boolean done;
 
-    private Freq freq;
-    private Calendar createAt;
-    private Status status;
     private List<Calendar> listDone = new ArrayList<>();
 
+    public Wont() {}
     public Wont(String name, String info,
-                Freq freq, Calendar createAt, Status status) {
+                String freq, Calendar createdAt, boolean done) {
         this.name = name;
         this.info = info;
         this.freq = freq;
-        this.createAt = createAt;
-        this.status = status;
+        this.createdAt = createdAt;
+        this.done = done;
     }
 
     public void addDoneWont(Calendar calendar) {
@@ -41,8 +42,8 @@ public class Wont {
                 "name='" + name + '\'' +
                 ", info='" + info + '\'' +
                 ", freq=" + freq +
-                ", createAt=" + createAt.getTime() +
-                ", status=" + status +
+                ", createAt=" + createdAt.getTime() +
+                ", status=" + done +
                 '}';
     }
 }

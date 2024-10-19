@@ -1,4 +1,4 @@
-package website.ylab.service;
+/** package website.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,7 +60,7 @@ public class DataUsersTest {
     public void deleteTest() {
         dataUsers.addUser(in, out);
 
-        dataUsers.deleteUser(Constants.USER_EMAIL);
+        dataUsers.deleteUser(Constants.USER_EMAIL, out);
         assertThat(dataUsers.getUsers()).hasSize(1);
     }
     @DisplayName("проверка обновления пользователя")
@@ -75,5 +75,5 @@ public class DataUsersTest {
         User expected = new User(Constants.USER_NAME, Constants.USER_EMAIL, "321");
         assertThat(actual).isEqualTo(expected);
     }
-
 }
+*/

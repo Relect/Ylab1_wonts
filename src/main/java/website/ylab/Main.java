@@ -1,16 +1,46 @@
 package website.ylab;
 
 
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import website.ylab.db.DBManager;
 import website.ylab.in.Read;
 import website.ylab.model.User;
 import website.ylab.out.Write;
 import website.ylab.service.DataUsers;
 import website.ylab.service.DataWonts;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class Main {
     public static void main(String[] args) {
+
         Read in = new Read();
         Write out = new Write();
+
+        try (Connection conn = DBManager.getConn()) {
+            Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+            database.setDefaultSchemaName("new");
+            Liquibase liquibase =
+                    new Liquibase("db/changelog/changelog.xml", new ClassLoaderResourceAccessor(), database);
+            liquibase.update();
+            out.writeLn("migrate successful");
+        } catch (LiquibaseException e) {
+            out.writeLn("ошибка liquibase");
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        out.writeLn("");
+
         DataUsers dataUsers = new DataUsers();
         DataWonts dataWonts = new DataWonts(dataUsers);
         String command;
@@ -46,28 +76,43 @@ public class Main {
                                     case "1":
                                         out.writeLn("введите email пользователя");
                                         String email = in.readLn();
-                                        if (dataUsers.getUsers().containsKey(email)) {
-                                            dataUsers.getUsers().get(email).setBlock(true);
-                                            out.writeLn("пользователь " + email + " заблокирован.");
-                                        } else {
-                                            out.writeLn("пользователь " + email + " не найден");
+
+                                        try (Connection conn = DBManager.getConn()) {
+                                            String sql = "UPDATE new.users set block = true WHERE email = ?;";
+                                            PreparedStatement ps = conn.prepareStatement(sql);
+                                            ps.setString(1, email);
+                                            int count = ps.executeUpdate();
+                                            if (count != 0) {
+                                                out.writeLn("пользователь " + email + " заблокирован.");
+                                            } else {
+                                                out.writeLn("пользователь " + email + " не найден");
+                                            }
+                                        } catch (SQLException e) {
+                                            throw new RuntimeException(e);
                                         }
                                         break;
                                     case "2":
                                         out.writeLn("введите email пользователя");
                                         String email1 = in.readLn();
-                                        if (dataUsers.getUsers().containsKey(email1)) {
-                                            dataUsers.getUsers().get(email1).setBlock(false);
-                                            out.writeLn("пользователь " + email1 + " разблокирован.");
-                                        } else {
-                                            out.writeLn("пользователь " + email1 + " не найден");
+
+                                        try (Connection conn = DBManager.getConn()) {
+                                            String sql = "UPDATE new.users set block = false WHERE email = ?;";
+                                            PreparedStatement ps = conn.prepareStatement(sql);
+                                            ps.setString(1, email1);
+                                            int count = ps.executeUpdate();
+                                            if (count != 0) {
+                                                out.writeLn("пользователь " + email1 + " разблокирован.");
+                                            } else {
+                                                out.writeLn("пользователь " + email1 + " не найден");
+                                            }
+                                        } catch (SQLException e) {
+                                            throw new RuntimeException(e);
                                         }
                                         break;
                                     case "3":
                                         out.writeLn("введите email пользователя");
                                         String email2 = in.readLn();
-                                        if (dataUsers.getUsers().containsKey(email2)) {
-                                            dataUsers.getUsers().remove(email2);
+                                        if (dataUsers.deleteUser(email2, out)) {
                                             out.writeLn("пользователь " + email2 + " удалён.");
                                         } else {
                                             out.writeLn("пользователь " + email2 + " не найден");
@@ -99,7 +144,11 @@ public class Main {
                                             dataUsers.editUser(user.getEmail(), in, out);
                                             break;
                                         case "2":
-                                            dataUsers.deleteUser(user.getEmail());
+                                            if (dataUsers.deleteUser(user.getEmail(), out)) {
+                                                out.writeLn("пользователь " + user.getEmail() + " удалён.");
+                                            } else {
+                                                out.writeLn("пользователь " + user.getEmail() + " не найден");
+                                            }
                                             exit = true;
                                             break;
                                         case "3":
