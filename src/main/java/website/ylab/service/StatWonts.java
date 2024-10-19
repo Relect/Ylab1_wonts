@@ -116,7 +116,8 @@ public class StatWonts {
                                     Calendar day = getDay();
                                     ps2.setTimestamp(2, new Timestamp(day.getTimeInMillis()));
                                     ResultSet rs2 = ps2.executeQuery();
-                                    long count = rs.getLong("count");
+                                    rs2.next();
+                                    long count = rs2.getLong("count");
                                     if (count == 0) {
                                         out.writeLn("за день выполнений не найдено");
                                     } else {
@@ -142,7 +143,8 @@ public class StatWonts {
                                     Calendar day3 = getWeek();
                                     ps3.setTimestamp(2, new Timestamp(day3.getTimeInMillis()));
                                     ResultSet rs3 = ps3.executeQuery();
-                                    long count3 = rs.getLong("count");
+                                    rs3.next();
+                                    long count3 = rs3.getLong("count");
                                     if (count3 == 0) {
                                         out.writeLn("за неделю выполнений не найдено");
                                     } else {
@@ -168,7 +170,8 @@ public class StatWonts {
                                     Calendar day4 = getMonth();
                                     ps4.setTimestamp(2, new Timestamp(day4.getTimeInMillis()));
                                     ResultSet rs4 = ps4.executeQuery();
-                                    long count4 = rs.getLong("count");
+                                    rs4.next();
+                                    long count4 = rs4.getLong("count");
                                     if (count4 == 0) {
                                         out.writeLn("за месяц выполнений не найдено");
                                     } else {
