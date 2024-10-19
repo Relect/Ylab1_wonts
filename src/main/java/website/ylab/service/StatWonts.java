@@ -294,91 +294,113 @@ public class StatWonts {
     }
 
     public void getRateOfTime(Read in, Write out, User user) {
-        int size = user.getWonts().size();
-        if (size == 0) {
-            out.writeLn("У пользователя нет привычек");
-            out.writeLn("для продолжения нажмите enter");
-            in.readLn();
-            return;
-        }
-        while (true) {
-            out.writeLn("""
-                    введите дату начала периода в формате dd.mm.yyyy
-                    например 20.10.2024
-                    exit для выхода в предыдущее меню""");
-            String str1 = in.readLn();
-            if (str1.equals("exit")) return;
 
-            SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-            Date date1;
-            Date date2;
-            try {
-                date1 = format.parse(str1);
-            } catch (ParseException e) {
-                out.writeLn("неверный ввод");
-                continue;
-            }
-            while (true) {
-                out.writeLn("""
-                    введите дату конца периода в формате dd.mm.yyyy
-                    например 30.10.2024
-                    exit для выхода в меню""");
-                String str2 = in.readLn();
-                if (str2.equals("exit")) return;
-                try {
-                    date2 = format.parse(str2);
-                } catch (ParseException e) {
-                    out.writeLn("неверный ввод");
-                    continue;
-                }
+        try (Connection conn = DBManager.getConn()){
+            String sql = "SELECT id, name, freq, done FROM new.wonts WHERE user_id = ?;";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, user.getId());
+            ResultSet rs = ps.executeQuery();
 
-                if (date2.getTime() < date1.getTime()) {
-                    out.writeLn("вторая дата не может быть меньше первой");
-                    continue;
-                }
-
-
-                Calendar cal1 = Calendar.getInstance();
-                cal1.setTime(date1);
-                Calendar cal2 = Calendar.getInstance();
-                cal2.setTime(date2);
-
-                for (int i = 0; i < size; i++) {
-                    Wont wont = user.getWonts().get(i);
-                    if (wont.getFreq() == Freq.EVERYDAY.name()) {
-
-                        long days = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
-                        if (days == 0) {
-                            days = 1;
-                        }
-                        double doIt = wont.getListDone().stream()
-                                .filter(done -> done.after(cal1))
-                                .filter(done -> done.before(cal2))
-                                .count();
-                        double result = doIt / days * 100;
-                        String str = String.format("привычка %s выполненна на %.2f процентов",
-                                wont.getName(), result);
-                        out.writeLn(str);
-                    } else {
-                        long weeks = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24 * 7);
-                        if (weeks == 0) {
-                            weeks = 1;
-                        }
-                        double doIt = wont.getListDone().stream()
-                                .filter(done -> done.after(cal1))
-                                .filter(done -> done.before(cal2))
-                                .count();
-                        double result = doIt / weeks * 100;
-                        String str = String.format("привычка %s выполненна на %.2f процентов",
-                                wont.getName(), result);
-                        out.writeLn(str);
-                    }
-
-                }
+            if (!rs.next()) {
+                out.writeLn("У пользователя нет привычек");
                 out.writeLn("для продолжения нажмите enter");
                 in.readLn();
-                return;
+            } else {
+                while (true) {
+                    out.writeLn("""
+                            введите дату начала периода в формате dd.mm.yyyy
+                            например 20.10.2024
+                            exit для выхода в предыдущее меню""");
+                    String str1 = in.readLn();
+                    if (str1.equals("exit")) return;
+
+                    SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                    Date date1;
+                    Date date2;
+                    try {
+                        date1 = format.parse(str1);
+                    } catch (ParseException e) {
+                        out.writeLn("неверный ввод");
+                        continue;
+                    }
+                    while (true) {
+                        out.writeLn("""
+                                введите дату конца периода в формате dd.mm.yyyy
+                                например 30.10.2024
+                                exit для выхода в меню""");
+                        String str2 = in.readLn();
+                        if (str2.equals("exit")) return;
+                        try {
+                            date2 = format.parse(str2);
+                        } catch (ParseException e) {
+                            out.writeLn("неверный ввод");
+                            continue;
+                        }
+
+                        if (date2.getTime() < date1.getTime()) {
+                            out.writeLn("вторая дата не может быть меньше первой");
+                            continue;
+                        }
+
+
+                        Calendar cal1 = Calendar.getInstance();
+                        cal1.setTime(date1);
+                        Calendar cal2 = Calendar.getInstance();
+                        cal2.setTime(date2);
+
+                        do {
+                            List<Calendar> list = new ArrayList<>();
+                            String sql2 = "SELECT exec FROM new.done WHERE wont_id = ?;";
+                            PreparedStatement ps2 = conn.prepareStatement(sql2);
+                            long wont_id = rs.getLong("id");
+                            ps2.setLong(1, wont_id);
+                            ResultSet rs2 = ps2.executeQuery();
+                            while (rs2.next()) {
+                                Calendar cal = Calendar.getInstance();
+                                cal.setTime(rs2.getTimestamp("exec"));
+                                list.add(cal);
+                            }
+
+                            String freq = rs.getString("freq");
+                            String wontName = rs.getString("name");
+                            if (freq.equals(Freq.EVERYDAY.name())) {
+
+                                long days = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
+                                if (days == 0) {
+                                    days = 1;
+                                }
+                                double doIt = list.stream()
+                                        .filter(done -> done.after(cal1))
+                                        .filter(done -> done.before(cal2))
+                                        .count();
+                                double result = doIt / days * 100;
+                                String str = String.format("привычка %s выполненна на %.2f процентов",
+                                        wontName, result);
+                                out.writeLn(str);
+                            } else {
+                                long weeks = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24 * 7);
+                                if (weeks == 0) {
+                                    weeks = 1;
+                                }
+                                double doIt = list.stream()
+                                        .filter(done -> done.after(cal1))
+                                        .filter(done -> done.before(cal2))
+                                        .count();
+                                double result = doIt / weeks * 100;
+                                String str = String.format("привычка %s выполненна на %.2f процентов",
+                                        wontName, result);
+                                out.writeLn(str);
+                            }
+
+                        } while (rs.next());
+                        out.writeLn("для продолжения нажмите enter");
+                        in.readLn();
+                        return;
+                    }
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
