@@ -36,7 +36,7 @@ public class StatWonts {
                 ResultSet rs = ps.executeQuery();
 
                 if (rs.next()) {
-                    long wont_id = rs.getLong("wont_id");
+                    long wont_id = rs.getLong("id");
                     String freq = rs.getString("freq");
                     if (!rs.getBoolean("done")) {
                         String sql2 = "UPDATE new.wonts SET done = true WHERE id = ?;";
@@ -49,6 +49,7 @@ public class StatWonts {
                         ps2.setLong(1, wont_id);
                         ps2.executeUpdate();
                         out.writeLn("Привычка " + wontName + " выполнена");
+                        return;
 
                     } else {
                         String sql3 = "SELECT exec FROM new.done WHERE wont_id = ? " +
@@ -57,7 +58,7 @@ public class StatWonts {
                         ps3.setLong(1, wont_id);
                         ResultSet rs3 = ps3.executeQuery();
                         rs3.next();
-                        Date date = rs3.getTime("exec");
+                        Date date = rs3.getTimestamp("exec");
                         Calendar last = Calendar.getInstance();
                         last.setTime(date);
                         Calendar start = freq == Freq.EVERYDAY.name() ? getDay() : getWeek();

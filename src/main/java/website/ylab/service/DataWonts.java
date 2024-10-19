@@ -247,7 +247,7 @@ public class DataWonts {
                 wont.setInfo(rs.getString("info"));
                 wont.setFreq(rs.getString("freq"));
                 Calendar calendar = Calendar.getInstance();
-                calendar.setTime(rs.getTime("created_at"));
+                calendar.setTime(rs.getTimestamp("created_at"));
                 wont.setCreatedAt(calendar);
                 wont.setDone(rs.getBoolean("done"));
                 list.add(wont);
@@ -255,7 +255,6 @@ public class DataWonts {
 
             if (list.isEmpty()) {
                 out.writeLn("список привычек пуст");
-                return;
             } else {
                 while (true) {
                     out.writeLn("""
