@@ -13,13 +13,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import website.ylab.db.DBManager;
 import website.ylab.in.Read;
-import website.ylab.model.User;
 import website.ylab.out.Write;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
