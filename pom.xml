@@ -19,6 +19,7 @@
         <lombok.version>1.18.34</lombok.version>
         <postgre.version>42.7.4</postgre.version>
         <liquibase.verson>4.29.0</liquibase.verson>
+        <testContainer.version>1.20.2</testContainer.version>
     </properties>
 
     <dependencies>
@@ -56,6 +57,15 @@
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.verson}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testContainer.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
