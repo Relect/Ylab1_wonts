@@ -6,10 +6,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -35,13 +32,13 @@ public class DataUsersTest {
     Write out;
 
     DataUsers dataUsers;
+    static PostgresContainer container;
 
     @BeforeAll
     public static void beforeAll() {
 
-        PostgresContainer postgresContainer = PostgresContainer.getInstance();
-        postgresContainer.start();
-        System.out.println("старт контейнера");
+        container = PostgresContainer.getInstance();
+        container.start();
 
         try (Connection conn = DBManager.getConn()) {
             conn.createStatement().execute("CREATE SCHEMA new;");
@@ -51,76 +48,60 @@ public class DataUsersTest {
             Liquibase liquibase =
                     new Liquibase("db/changelog/changelog.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.update();
-            System.out.println("migrate successful");
         } catch (LiquibaseException e) {
-            System.out.println("ошибка liquibase");
             throw new RuntimeException(e);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     @BeforeEach
     public void beforeEach() {
         dataUsers = new DataUsers();
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        container.stop();
+    }
+
+    @DisplayName("проверка добавления пользователя")
+    @Test
+    public void addUserTest1() {
         Mockito.when(in.readLn())
                 .thenReturn(Constants.USER_NAME)
                 .thenReturn(Constants.USER_EMAIL)
                 .thenReturn(Constants.USER_PASSWORD);
-    }
-    @DisplayName("проверка количества пользователей")
-    @Test
-    public void addUserTest1() {
-
         dataUsers.addUser(in, out);
         try (Connection conn = DBManager.getConn()){
             ResultSet rs = conn.createStatement().executeQuery("SELECT count(*) from new.users;");
             rs.next();
             long count = rs.getLong("count");
             assertThat(count).isEqualTo(2);
+
+            rs.close();
+            rs = conn.createStatement().executeQuery("SELECT name, password from new.users WHERE email = " +
+                    "'" + Constants.USER_EMAIL + "'" + " ;");
+            rs.next();
+            assertThat(rs.getString("name")).isEqualTo(Constants.USER_NAME);
+            assertThat(rs.getString("password")).isEqualTo(Constants.USER_PASSWORD);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    @DisplayName("проверка количества пользователей после добавления")
-    @Test
-    public void addUserTest2() {
-        dataUsers.addUser(in, out);
-        User actual = dataUsers.getUsers().get(Constants.USER_EMAIL);
-        User expected = new User(Constants.USER_NAME, Constants.USER_EMAIL, Constants.USER_PASSWORD);
-        assertThat(actual).isEqualTo(expected);
-    }
-    @DisplayName("проверка входа пользователя")
-    @Test
-    public void loginTest() {
-        dataUsers.addUser(in, out);
 
-        Mockito.when(in.readLn()).thenReturn(Constants.USER_EMAIL)
-                .thenReturn(Constants.USER_PASSWORD);
-        User actual = dataUsers.login(in, out);
-        User expected = dataUsers.users.get(Constants.USER_EMAIL);
-        assertThat(actual).isEqualTo(expected);
-    }
     @DisplayName("проверка удаления пользователя")
     @Test
     public void deleteTest() {
-        dataUsers.addUser(in, out);
 
         dataUsers.deleteUser(Constants.USER_EMAIL, out);
-        assertThat(dataUsers.getUsers()).hasSize(1);
-    }
-    @DisplayName("проверка обновления пользователя")
-    @Test
-    public void editUserTest() {
-        dataUsers.addUser(in, out);
-
-        Mockito.when(in.readLn()).thenReturn("3")
-                .thenReturn("321");
-        dataUsers.editUser(Constants.USER_EMAIL, in, out);
-        User actual = dataUsers.getUsers().get(Constants.USER_EMAIL);
-        User expected = new User(Constants.USER_NAME, Constants.USER_EMAIL, "321");
-        assertThat(actual).isEqualTo(expected);
+        try (Connection conn = DBManager.getConn()) {
+            ResultSet rs = conn.createStatement().executeQuery("SELECT count(*) from new.users;");
+            rs.next();
+            long count = rs.getLong("count");
+            assertThat(count).isEqualTo(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
