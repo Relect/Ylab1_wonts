@@ -39,7 +39,7 @@ public class DataUsersTest {
         container.start();
 
         try (Connection conn = DBManager.getConn()) {
-            conn.createStatement().execute("CREATE SCHEMA new;");
+            conn.createStatement().execute("CREATE SCHEMA if not exists new;");
 
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
             database.setDefaultSchemaName("new");

@@ -11,11 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import website.ylab.custom.Freq;
 import website.ylab.db.DBManager;
 import website.ylab.in.Read;
 import website.ylab.model.User;
-import website.ylab.model.Wont;
 import website.ylab.out.Write;
 
 import java.sql.Connection;
@@ -44,7 +42,7 @@ public class DataWontsTest {
         container.start();
 
         try (Connection conn = DBManager.getConn()) {
-            conn.createStatement().execute("CREATE SCHEMA new;");
+            conn.createStatement().execute("CREATE SCHEMA if not exists new;");
 
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
             database.setDefaultSchemaName("new");
@@ -86,8 +84,8 @@ public class DataWontsTest {
     @Test
     public void addWontsTest() {
 
-        Mockito.when(in.readLn()).thenReturn("чистка зубов")
-                .thenReturn("предотвращает кариес")
+        Mockito.when(in.readLn()).thenReturn(Constants.WONT_NAME)
+                .thenReturn(Constants.WONT_INFO)
                 .thenReturn("1");
         dataWonts.addWont(in, out, user);
 
@@ -105,14 +103,13 @@ public class DataWontsTest {
     @Test
     public void editWontTest() {
 
-        String infoOld = "предотвращает кариес";
         String infoNew = "защищает зубы";
-        Mockito.when(in.readLn()).thenReturn("чистка зубов")
-                .thenReturn(infoOld)
+        Mockito.when(in.readLn()).thenReturn(Constants.WONT_NAME)
+                .thenReturn(Constants.WONT_INFO)
                 .thenReturn("1");
         dataWonts.addWont(in, out, user);
 
-        Mockito.when(in.readLn()).thenReturn("чистка зубов")
+        Mockito.when(in.readLn()).thenReturn(Constants.WONT_NAME)
                 .thenReturn("2").thenReturn(infoNew);
         dataWonts.editWont(in, out, user);
 
